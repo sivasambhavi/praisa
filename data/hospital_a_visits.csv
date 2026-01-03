@@ -1,0 +1,21 @@
+visit_id,patient_id,admission_date,visit_type,diagnosis,doctor_name
+VA001,HA001,2025-10-15 09:00:00,OPD,Type 2 Diabetes Mellitus,Dr. Anjali Mehta
+VA002,HA001,2025-12-20 14:30:00,OPD,Diabetes Follow-up,Dr. Anjali Mehta
+VA003,HA002,2025-11-05 10:15:00,Emergency,Severe Headache,Dr. Rajesh Kumar
+VA004,HA002,2025-11-12 09:30:00,OPD,Migraine with Aura,Dr. Rajesh Kumar
+VA005,HA003,2025-09-10 11:00:00,OPD,Hypertension,Dr. Suresh Reddy
+VA006,HA003,2025-12-01 10:00:00,OPD,Routine Checkup,Dr. Suresh Reddy
+VA007,HA004,2025-10-25 15:00:00,OPD,Viral Fever,Dr. Meera Iyer
+VA008,HA004,2025-10-28 09:00:00,OPD,Fever Follow-up,Dr. Meera Iyer
+VA009,HA005,2025-11-15 12:30:00,OPD,Allergic Rhinitis,Dr. Vikram Singh
+VA010,HA005,2025-12-05 16:00:00,OPD,Allergy Follow-up,Dr. Vikram Singh
+VA011,HA006,2025-10-01 10:30:00,OPD,Lower Back Pain,Dr. Amit Patel
+VA012,HA006,2025-10-15 11:00:00,OPD,Physiotherapy Session,Dr. Amit Patel
+VA013,HA007,2025-11-20 09:45:00,OPD,Gastritis,Dr. Priya Desai
+VA014,HA007,2025-12-10 10:00:00,OPD,Follow-up Gastritis,Dr. Priya Desai
+VA015,HA008,2025-09-25 14:00:00,OPD,Conjunctivitis,Dr. Neha Gupta
+VA016,HA008,2025-10-02 09:00:00,OPD,Eye Checkup,Dr. Neha Gupta
+VA017,HA009,2025-11-08 11:30:00,Emergency,Fractured Wrist,Dr. Rahul Sharma
+VA018,HA009,2025-12-20 10:00:00,OPD,Cast Removal,Dr. Rahul Sharma
+VA019,HA010,2025-10-12 13:00:00,OPD,Bronchitis,Dr. Sanjay Verma
+VA020,HA010,2025-10-20 09:30:00,OPD,Respiratory Follow-up,Dr. Sanjay Verma
