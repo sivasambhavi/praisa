@@ -13,8 +13,7 @@ TODO:
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-# TODO: Import routers
-# from app.routes import patients, matching
+from app.routes import patients, matching
 
 app = FastAPI(
     title="PRAISA Healthcare Interoperability API",
@@ -31,9 +30,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# TODO: Include routers
-# app.include_router(patients.router, prefix="/api", tags=["patients"])
-# app.include_router(matching.router, prefix="/api", tags=["matching"])
+app.include_router(patients.router, prefix="/api/patients", tags=["patients"])
+app.include_router(matching.router, prefix="/api/match", tags=["matching"])
 
 @app.get("/")
 async def root():
