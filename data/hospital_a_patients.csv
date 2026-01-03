@@ -1,0 +1,11 @@
+patient_id,name,dob,mobile,gender,abha_number,address,state
+HA001,Ramesh Singh,1985-03-15,9876543210,M,12-3456-7890-1234,"123 MG Road Mumbai",Maharashtra
+HA002,Priya Sharma,1990-07-22,9123456789,F,12-3456-7890-2345,"456 Park Street Delhi",Delhi
+HA003,Vijay Kumar,1978-11-30,9234567890,M,12-3456-7890-3456,"789 Anna Salai Chennai",Tamil Nadu
+HA004,Amit Kumar,1982-01-15,9345123456,M,12-3456-7890-4567,"101 Brigade Road Bangalore",Karnataka
+HA005,Sunita Gupta,1995-09-05,9456789012,F,12-3456-7890-5678,"202 Civil Lines Jaipur",Rajasthan
+HA006,Mohammad Khan,1988-04-12,9567890123,M,12-3456-7890-6789,"303 Banjara Hills Hyderabad",Telangana
+HA007,Lakshmi Narayan,1975-06-25,9678901234,F,12-3456-7890-7890,"404 Salt Lake Kolkata",West Bengal
+HA008,Anita Desai,1992-12-10,9789012345,F,12-3456-7890-8901,"505 Law Garden Ahmedabad",Gujarat
+HA009,Rahul Verma,1998-02-28,9890123456,M,12-3456-7890-9012,"606 Sadar Bazar Lucknow",Uttar Pradesh
+HA010,Suresh Patel,1980-08-18,9901234567,M,12-3456-7890-0123,"707 FC Road Pune",Maharashtra
