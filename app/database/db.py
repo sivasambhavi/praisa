@@ -14,7 +14,7 @@ Date: 2026-01-04
 
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
-from contextmanager import contextmanager
+from contextlib import contextmanager
 
 # Database Configuration
 # Using SQLite for POC demo - file-based database
