@@ -2,86 +2,142 @@ import React, { useState } from 'react';
 import SearchForm from './components/SearchForm';
 import MatchResults from './components/MatchResults';
 import UnifiedHistory from './components/UnifiedHistory';
+import { searchPatients, matchPatients, getPatientHistory } from './api/client';
 
 function App() {
     const [step, setStep] = useState('search'); // search, match, history
     const [searchData, setSearchData] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
 
-    // Mock Data for Demo
-    const mockComputations = {
-        source: {
-            id: "HA001",
-            name: "Ramesh Singh",
-            dob: "1985-03-15",
-            abha_number: "12-3456-7890-1234"
-        },
-        target: {
-            id: "HB001",
-            name: "Ramehs Singh",
-            dob: "1985-03-15",
-            abha_number: "12-3456-7890-1234"
-        },
-        match: {
-            match_score: 90,
-            method: "Phonetic Match (Indian Names)"
-        },
-        history: [
-            {
-                date: "2025-12-28",
-                hospital: "B",
-                type: "Emergency",
-                diagnosis: "Chest Pain",
-                doctor: "Suresh Reddy",
-                department: "Cardiology",
-                notes: "Patient presented with chest pain..."
-            },
-            {
-                date: "2025-10-15",
-                hospital: "A",
-                type: "OPD",
-                diagnosis: "Diabetes Follow-up",
-                doctor: "Anjali Mehta",
-                department: "Endocrinology",
-                notes: "Blood sugar levels stable..."
-            },
-            {
-                date: "2025-10-01",
-                hospital: "A",
-                type: "OPD",
-                diagnosis: "Type 2 Diabetes Mellitus",
-                doctor: "Anjali Mehta",
-                department: "General Medicine",
-                notes: "Initial diagnosis. Prescribed Metformin."
+    // State for match flow
+    const [currentPatient, setCurrentPatient] = useState(null);
+    const [matchResult, setMatchResult] = useState(null);
+    const [targetPatientId, setTargetPatientId] = useState(null); // The ID to match against
+    const [history, setHistory] = useState([]);
+
+    const handleSearch = async (criteria) => {
+        setLoading(true);
+        setError(null);
+        try {
+            const results = await searchPatients(criteria);
+            // Just take the first result for simplicity in this demo flow if multiple returned
+            // Or pass list to a selection view. For now, let's assume specific search.
+            if (results.length > 0) {
+                setSearchData(results[0]);
+                setCurrentPatient(results[0]);
+            } else {
+                setSearchData(null);
+                setCurrentPatient(null);
+                setError("No patient found");
             }
-        ]
+        } catch (err) {
+            setError("Failed to search patients");
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
     };
 
-    const handleSearch = (data) => {
-        setSearchData(data);
-        // In a real app, we would transition based on API result
-        // For demo, if matches mock data or blank, we show the result table
+    const handleMatchClick = async () => {
+        if (!currentPatient) return;
+        setLoading(true);
+        setError(null);
+
+        try {
+            // Hardcoded target selection for Demo Flow as per guide (Select HB001)
+            // In a real app, this would be a selection from a list of candidates.
+            const targetId = "HB001";
+            setTargetPatientId(targetId);
+
+            const result = await matchPatients(currentPatient.id, targetId);
+            setMatchResult(result);
+            setStep('match');
+        } catch (err) {
+            setError("Matching failed: " + err.message);
+        } finally {
+            setLoading(false);
+        }
     };
 
-    const handleMatchClick = () => {
-        setStep('match');
+    const handleHistoryClick = async () => {
+        if (!currentPatient) return;
+        setLoading(true);
+        setError(null);
+
+        try {
+            // Fetch source patient history (Hospital A)
+            const visitsA = await getPatientHistory(currentPatient.id, 'A');
+
+            // Fetch target patient history (Hospital B) if we have a match target
+            let visitsB = [];
+            if (targetPatientId) {
+                try {
+                    visitsB = await getPatientHistory(targetPatientId, 'B');
+                } catch (e) {
+                    console.warn("Could not fetch target history", e);
+                    // Continue even if B fails, just show A
+                }
+            }
+
+            // Combine and sort by date descending
+            const combinedHistory = [...visitsA, ...visitsB].sort((a, b) => {
+                // Date strings might be empty if invalid
+                const dateA = a.date ? new Date(a.date) : new Date(0);
+                const dateB = b.date ? new Date(b.date) : new Date(0);
+                return dateB - dateA;
+            });
+
+            setHistory(combinedHistory);
+            setStep('history');
+        } catch (err) {
+            setError("Failed to load history");
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
     };
 
-    const handleHistoryClick = () => {
-        setStep('history');
-    };
+    // Derived state for MatchResults component
+    // It expects sourcePatient, targetPatient, matchData
+    // We have currentPatient (source). We need targetPatient object.
+    // matchResult contains details but maybe not full patient object?
+    // Let's modify MatchResults if needed or fetch target patient details.
+
+    // Actually, matchResult from backend returns:
+    // { match_score, ... details: { ... } }
+    // It doesn't return the full patient objects B.
+    // But we fetched them in `matchPatients` client method!
+    // We might need to store them.
+
+    // Simplified for now: We pass what we have.
+    // Ideally we should update MatchResults to accept the structure we have.
 
     return (
-        <div className="min-h-screen bg-gray-100 p-8 font-sans">
-            <div className="max-w-4xl mx-auto">
-                <header className="mb-8 text-center animate-fade-in-down">
-                    <h1 className="text-4xl font-extrabold text-blue-800 tracking-tight">PRAISA</h1>
-                    <p className="text-gray-600 text-lg">AI-Powered Healthcare Interoperability Platform</p>
+        <div className="min-h-screen bg-transparent p-4 md:p-8 font-sans text-gray-800">
+            <div className="max-w-5xl mx-auto">
+                <header className="mb-12 text-center animate-fade-in-down">
+                    <h1 className="text-6xl font-extrabold tracking-tighter mb-2">
+                        <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 drop-shadow-sm">
+                            PRAISA
+                        </span>
+                    </h1>
+                    <p className="text-slate-600 text-xl font-medium tracking-wide">AI-Powered Healthcare Interoperability Platform</p>
                 </header>
+
+                {error && (
+                    <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+                        <span className="block sm:inline">{error}</span>
+                    </div>
+                )}
 
                 {step === 'search' && (
                     <div className="animate-fade-in-up">
-                        <SearchForm onSearch={handleSearch} />
-                        {searchData && (
+                        <SearchForm onSearch={handleSearch} isLoading={loading} />
+
+                        {loading && <div className="text-center mt-4">Loading...</div>}
+
+                        {!loading && searchData && (
                             <div className="bg-white p-6 rounded-lg shadow-md mt-6 animate-fade-in">
                                 <h3 className="text-lg font-bold mb-4 text-gray-800">Search Results</h3>
                                 <div className="overflow-x-auto">
@@ -96,9 +152,9 @@ function App() {
                                         </thead>
                                         <tbody>
                                             <tr className="hover:bg-gray-50 transition-colors">
-                                                <td className="p-3 border-b">HA001</td>
-                                                <td className="p-3 border-b font-medium text-gray-900">Ramesh Singh</td>
-                                                <td className="p-3 border-b">1985-03-15</td>
+                                                <td className="p-3 border-b">{searchData.id}</td>
+                                                <td className="p-3 border-b font-medium text-gray-900">{searchData.name}</td>
+                                                <td className="p-3 border-b">{searchData.dob}</td>
                                                 <td className="p-3 border-b">
                                                     <button
                                                         onClick={handleMatchClick}
@@ -116,12 +172,12 @@ function App() {
                     </div>
                 )}
 
-                {(step === 'match' || step === 'history') && (
+                {(step === 'match' || step === 'history') && matchResult && (
                     <div className="animate-fade-in">
                         <MatchResults
-                            sourcePatient={mockComputations.source}
-                            targetPatient={mockComputations.target}
-                            matchData={mockComputations.match}
+                            sourcePatient={currentPatient}
+                            targetPatient={{ id: "HB001", name: "Ramehs Singh", dob: "1985-03-15", abha_number: currentPatient.abha_number }} // Mock target for display
+                            matchData={matchResult}
                             onHistoryClick={handleHistoryClick}
                         />
                     </div>
@@ -129,14 +185,14 @@ function App() {
 
                 {step === 'history' && (
                     <div className="animate-slide-in-bottom">
-                        <UnifiedHistory history={mockComputations.history} />
+                        <UnifiedHistory history={history} />
                     </div>
                 )}
 
                 {step !== 'search' && (
                     <div className="mt-12 text-center pb-8">
                         <button
-                            onClick={() => { setStep('search'); setSearchData(null); }}
+                            onClick={() => { setStep('search'); setSearchData(null); setCurrentPatient(null); setMatchResult(null); }}
                             className="text-gray-500 hover:text-blue-600 underline transition-colors"
                         >
                             Start New Search
