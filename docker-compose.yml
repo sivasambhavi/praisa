@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  # PRAISA API Service
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: praisa-api
+    ports:
+      - "8000:8000"
+    environment:
+      - ENV=production
+      - DATABASE_URL=sqlite:///./praisa_demo.db
+      - API_HOST=0.0.0.0
+      - API_PORT=8000
+    volumes:
+      # Mount database for persistence
+      - ./praisa_demo.db:/app/praisa_demo.db
+      # Mount logs directory
+      - ./logs:/app/logs
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - praisa-network
+
+  # Optional: PostgreSQL for production
+  # Uncomment for production deployment
+  # postgres:
+  #   image: postgres:15-alpine
+  #   container_name: praisa-db
+  #   environment:
+  #     - POSTGRES_USER=praisa
+  #     - POSTGRES_PASSWORD=praisa_password
+  #     - POSTGRES_DB=praisa_production
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #   ports:
+  #     - "5432:5432"
+  #   networks:
+  #     - praisa-network
+
+  # Optional: Redis for caching
+  # Uncomment for production deployment
+  # redis:
+  #   image: redis:7-alpine
+  #   container_name: praisa-cache
+  #   ports:
+  #     - "6379:6379"
+  #   networks:
+  #     - praisa-network
+
+networks:
+  praisa-network:
+    driver: bridge
+
+volumes:
+  postgres_data:

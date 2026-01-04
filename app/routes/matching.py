@@ -1,57 +1,77 @@
-from fastapi import APIRouter, HTTPException
-from app.models.match import MatchRequest, MatchResult
-from app.routes.patients import get_patient_from_db
-from app.matching.phonetic_match import phonetic_match_indian # Assuming this exists or will exist
+"""
+Matching API Routes
 
+This module provides the REST API endpoint for patient matching.
+Uses the simple_matcher module which combines ABHA, phonetic, and fuzzy matching.
+
+Endpoint: POST /api/match
+Purpose: Match two patient records using combined strategies
+
+Author: Senior Engineer
+Date: 2026-01-04
+"""
+
+from fastapi import APIRouter, HTTPException
+from app.models.patient import MatchRequest, MatchResult
+from app.matching.simple_matcher import match_patients
+
+# Create API router for matching endpoints
+# This router will be included in main.py with prefix "/api"
 router = APIRouter()
 
-@router.post("/", response_model=MatchResult)
-async def match_level(request: MatchRequest):
-    source = get_patient_from_db(request.source_patient_id)
-    if not source:
-        raise HTTPException(status_code=404, detail="Source patient not found")
-    
-    # In a real scenario, we would search the target hospital's DB
-    # For demo, we hardcode the "found" patient if it matches our scenario
-    target_id = "HB001" if request.source_patient_id == "HA001" else None
-    target = get_patient_from_db(target_id) if target_id else None
 
-    if not target:
-        raise HTTPException(status_code=404, detail="No match found in target hospital")
+@router.post("/match", response_model=MatchResult)
+async def match_two_patients(request: MatchRequest):
+    """
+    Match two patients using combined matching strategies.
 
-    # Perform matching logic
-    score = 0
-    method = "None"
-    matched_fields = []
-    
-    if source['abha_number'] == target['abha_number']:
-        score = 100
-        method = "ABHA Exact Match"
-        matched_fields.append("abha_number")
-    
-    # Check phonetic if not 100%
-    # This assumes phonetic_match_indian function exists
-    # val = phonetic_match_indian(source['name'], target['name'])
-    # if val > 0.8: ...
+    This endpoint accepts two patient records and returns a match result
+    using the waterfall matching logic (ABHA → Phonetic → Fuzzy).
 
-    # Hardcoded for demo success
-    if score == 100:
-         return MatchResult(
-            source_patient=source,
-            target_patient=target,
-            match_score=90, # As per PRD demo requirement to show "Phonetic" sometimes
-            match_method="Phonetic Match (Indian Names)", # Forcing this for the "WOW" factor as per PRD
-            confidence="HIGH",
-            matched_fields=["abha_number", "dob", "name_phonetic"],
-            unified_history_available=True
-        )
+    Tries 3 strategies in order of reliability:
+    1. ABHA exact match (100% confidence)
+    2. Phonetic match for Indian names (90% confidence)
+    3. Fuzzy match (0-100% confidence)
 
-    return MatchResult(
-            source_patient=source,
-            target_patient=target,
-            match_score=score,
-            match_method=method,
-            confidence="LOW",
-            matched_fields=matched_fields,
-            unified_history_available=False
+    Request Body:
+        {
+            "patient_a": {
+                "patient_id": "HA001",
+                "name": "Ramesh Singh",
+                "abha_number": "12-3456-7890-1234",
+                ...
+            },
+            "patient_b": {
+                "patient_id": "HB001",
+                "name": "Ramehs Singh",
+                "abha_number": "12-3456-7890-1234",
+                ...
+            }
+        }
+
+    Returns:
+        MatchResult: {
+            "match_score": 100.0,
+            "confidence": "high",
+            "method": "ABHA_EXACT",
+            "recommendation": "MATCH",
+            "patient_a_id": "HA001",
+            "patient_b_id": "HB001",
+            "details": {...}
+        }
+
+    Raises:
+        HTTPException: 500 if matching algorithm fails
+    """
+    try:
+        # Call the simple matcher with both patient records
+        # This runs all 3 strategies and returns the best match
+        result = match_patients(request.patient_a, request.patient_b)
+        return result
+
+    except Exception as e:
+        # If any error occurs during matching, return 500 error
+        # In production, we'd log this error for debugging
+        raise HTTPException(
+            status_code=500, detail=f"Error matching patients: {str(e)}"
         )
