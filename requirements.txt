@@ -6,41 +6,42 @@
 # ----------------------------------------------------------------------------
 # Web Framework & API
 # ----------------------------------------------------------------------------
-fastapi==0.115.6
-uvicorn[standard]==0.34.0
-httpx==0.28.1  # Required for FastAPI TestClient
+fastapi
+uvicorn[standard]
+httpx  # Required for FastAPI TestClient
 # ----------------------------------------------------------------------------
 # Database & ORM
 # ----------------------------------------------------------------------------
-sqlalchemy==2.0.25            # SQL toolkit and ORM for database operations
-python-dotenv==1.0.0          # Load environment variables from .env file
+sqlalchemy            # SQL toolkit and ORM for database operations
+python-dotenv          # Load environment variables from .env file
 
 # ----------------------------------------------------------------------------
 # Data Validation & Models
 # ----------------------------------------------------------------------------
-pydantic==2.5.3               # Data validation using Python type annotations
-pydantic-settings==2.1.0      # Settings management with Pydantic (loads from .env)
+pydantic               # Data validation using Python type annotations
+pydantic-settings      # Settings management with Pydantic (loads from .env)
 
 # ----------------------------------------------------------------------------
 # Data Processing
 # ----------------------------------------------------------------------------
-pandas==2.1.4                 # Data manipulation and CSV processing
+pandas                 # Data manipulation and CSV processing
 
 # ----------------------------------------------------------------------------
 # Matching Algorithms (Core Features)
 # ----------------------------------------------------------------------------
-rapidfuzz==3.6.1              # Fast fuzzy string matching (Levenshtein distance)
-jellyfish==1.0.3              # Phonetic encoding algorithms (Metaphone, Soundex)
+rapidfuzz              # Fast fuzzy string matching (Levenshtein distance)
+jellyfish              # Phonetic encoding algorithms (Metaphone, Soundex)
 
 # ----------------------------------------------------------------------------
 # Testing & Quality
 # ----------------------------------------------------------------------------
-pytest==7.4.4                 # Testing framework
-pytest-cov==4.1.0             # Code coverage plugin for pytest
+pytest                 # Testing framework
+pytest-cov             # Code coverage plugin for pytest
 
 # ----------------------------------------------------------------------------
 # Code Quality & Formatting
 # ----------------------------------------------------------------------------
-black==24.1.1                 # Code formatter (PEP 8 compliant)
-flake8==7.0.0                 # Linting tool for code quality checks
+black                 # Code formatter (PEP 8 compliant)
+flake8
+scikit-learn                 # Linting tool for code quality checks
 

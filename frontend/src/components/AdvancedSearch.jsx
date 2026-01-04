@@ -164,11 +164,11 @@ const AdvancedSearch = ({ onSearch, isLoading }) => {
                     <button
                         type="submit"
                         disabled={isLoading}
-                        className={`w-full bg-gradient-to-r from-lime-400 via-lime-500 to-green-500 text-white px-6 py-3.5 rounded-lg shadow-xl hover:shadow-2xl hover:-translate-y-0.5 transition-all duration-200 text-base font-bold flex items-center justify-center gap-2 ${
+                        className={`w-full bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 text-white px-6 py-3.5 rounded-lg shadow-xl hover:shadow-2xl hover:-translate-y-0.5 transition-all duration-200 text-base font-bold flex items-center justify-center gap-2 ${
                             isLoading ? 'opacity-75 cursor-not-allowed' : ''
                         }`}
                         style={{
-                            boxShadow: '0 0 30px rgba(132, 204, 22, 0.5), 0 10px 25px rgba(0, 0, 0, 0.3)'
+                            boxShadow: '0 0 20px rgba(5, 150, 105, 0.4), 0 10px 25px rgba(0, 0, 0, 0.3)'
                         }}
                     >
                         {isLoading ? (

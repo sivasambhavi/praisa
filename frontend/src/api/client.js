@@ -33,53 +33,20 @@ const transformVisit = (data, hospitalLabel) => {
 };
 
 // API Methods
-export const searchPatients = async ({ type = 'name', value, hospital }) => {
+export const searchPatients = async ({ name, hospital }) => {
     try {
-        console.log(`Searching for ${value} by ${type} in hospital ${hospital}`);
-        
-        let patients = [];
-        
-        // Backend supports name and abha search directly
-        if (type === 'name') {
-            const response = await client.get('/api/patients/search', {
-                params: { name: value }
-            });
-            patients = response.data.results || [];
-        } else if (type === 'abha') {
-            const response = await client.get('/api/patients/search', {
-                params: { abha: value }
-            });
-            patients = response.data.results || [];
-        } else {
-            // For aadhar and phone, we need to fetch all patients and filter client-side
-            // This is not optimal for production but works for demo purposes
-            const response = await client.get('/api/patients/search', {
-                params: { name: '' } // Get all patients with empty name
-            });
-            patients = response.data.results || [];
-            
-            // Client-side filtering
-            if (type === 'aadhar') {
-                const searchValue = value.replace(/\D/g, ''); // Remove non-digits
-                patients = patients.filter(p => {
-                    const aadhar = (p.aadhar_number || '').replace(/\D/g, '');
-                    return aadhar.includes(searchValue);
-                });
-            } else if (type === 'phone') {
-                const searchValue = value.replace(/\D/g, ''); // Remove non-digits
-                patients = patients.filter(p => {
-                    const mobile = (p.mobile || '').replace(/\D/g, '');
-                    return mobile.includes(searchValue);
-                });
-            }
-        }
+        console.log(`Searching for ${name} in ${hospital}`);
 
-        // Filter by hospital if specified
-        const filtered = hospital
-            ? patients.filter(p => p.hospital_id === `hospital_${hospital.toLowerCase()}`)
-            : patients;
+        // Prepare backend hospital_id string (e.g. 'hospital_a')
+        const hospital_id = hospital ? `hospital_${hospital.toLowerCase()}` : undefined;
 
-        return filtered.map(transformPatient);
+        // Endpoint: GET /api/patients/search?name=...&hospital_id=...
+        const response = await client.get('/api/patients/search', {
+            params: { name, hospital_id }
+        });
+
+        const patients = response.data.results || [];
+        return patients.map(transformPatient);
     } catch (error) {
         console.error("Search failed:", error);
         throw error;

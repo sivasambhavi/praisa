@@ -25,6 +25,7 @@ router = APIRouter()
 async def search_patients(
     name: str = Query(None, min_length=2),  # Name search (min 2 chars)
     abha: str = Query(None, min_length=14),  # ABHA search (min 14 chars)
+    hospital_id: str = Query(None), # Optional hospital filter
 ):
     """
     Search for patients by name or ABHA number.
@@ -60,7 +61,7 @@ async def search_patients(
 
     # Call database search function
     # Returns list of patient dictionaries
-    patients = db.search_patients(name=name, abha=abha)
+    patients = db.search_patients(name=name, abha=abha, hospital_id=hospital_id)
 
     # Return results with count
     return {"results": patients, "count": len(patients)}
