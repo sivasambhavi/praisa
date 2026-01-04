@@ -1,12 +1,46 @@
-fastapi==0.109.0
-uvicorn[standard]==0.27.0
-sqlalchemy==2.0.25
-pydantic==2.5.3
-rapidfuzz==3.6.1
-jellyfish==1.0.3
-pandas==2.1.4
-pytest==7.4.4
-pytest-cov==4.1.0
-black==24.1.1
-flake8==7.0.0
-python-dotenv==1.0.0
+# ============================================================================
+# PRAISA - Healthcare Interoperability Platform
+# Python Dependencies
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# Web Framework & API
+# ----------------------------------------------------------------------------
+fastapi==0.109.0              # Modern async web framework for building APIs
+uvicorn[standard]==0.27.0     # ASGI server for running FastAPI
+
+# ----------------------------------------------------------------------------
+# Database & ORM
+# ----------------------------------------------------------------------------
+sqlalchemy==2.0.25            # SQL toolkit and ORM for database operations
+python-dotenv==1.0.0          # Load environment variables from .env file
+
+# ----------------------------------------------------------------------------
+# Data Validation & Models
+# ----------------------------------------------------------------------------
+pydantic==2.5.3               # Data validation using Python type annotations
+pydantic-settings==2.1.0      # Settings management with Pydantic (loads from .env)
+
+# ----------------------------------------------------------------------------
+# Data Processing
+# ----------------------------------------------------------------------------
+pandas==2.1.4                 # Data manipulation and CSV processing
+
+# ----------------------------------------------------------------------------
+# Matching Algorithms (Core Features)
+# ----------------------------------------------------------------------------
+rapidfuzz==3.6.1              # Fast fuzzy string matching (Levenshtein distance)
+jellyfish==1.0.3              # Phonetic encoding algorithms (Metaphone, Soundex)
+
+# ----------------------------------------------------------------------------
+# Testing & Quality
+# ----------------------------------------------------------------------------
+pytest==7.4.4                 # Testing framework
+pytest-cov==4.1.0             # Code coverage plugin for pytest
+
+# ----------------------------------------------------------------------------
+# Code Quality & Formatting
+# ----------------------------------------------------------------------------
+black==24.1.1                 # Code formatter (PEP 8 compliant)
+flake8==7.0.0                 # Linting tool for code quality checks
+
