@@ -25,8 +25,7 @@ DATABASE_URL = "sqlite:///praisa_demo.db"
 # check_same_thread=False is required for SQLite to work with FastAPI
 # (FastAPI uses multiple threads for async operations)
 engine = create_engine(
-    DATABASE_URL, 
-    connect_args={"check_same_thread": False}  # SQLite-specific setting
+    DATABASE_URL, connect_args={"check_same_thread": False}  # SQLite-specific setting
 )
 
 # Create session factory
@@ -40,14 +39,14 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 def get_db():
     """
     Database session context manager.
-    
+
     Provides a database session and ensures it's properly closed
     after use, even if an exception occurs.
-    
+
     Usage:
         with get_db() as db:
             result = db.execute(query)
-    
+
     Yields:
         Session: SQLAlchemy database session
     """
@@ -61,16 +60,16 @@ def get_db():
 def get_patient(patient_id: str):
     """
     Get patient by unique patient ID.
-    
+
     Retrieves a single patient record from the database by their
     unique patient_id (e.g., "HA001", "HB001").
-    
+
     Args:
         patient_id: Unique patient identifier (e.g., "HA001")
-    
+
     Returns:
         dict: Patient record with all fields, or None if not found
-        
+
     Example:
         >>> get_patient("HA001")
         {'patient_id': 'HA001', 'name': 'Ramesh Singh', 'abha_number': '12-3456-7890-1234', ...}
@@ -78,11 +77,11 @@ def get_patient(patient_id: str):
     with get_db() as db:
         # Use parameterized query to prevent SQL injection
         query = text("SELECT * FROM patients WHERE patient_id = :pid")
-        
+
         # Execute query and get first result
         # mappings() converts Row objects to dict-like objects
         result = db.execute(query, {"pid": patient_id}).mappings().first()
-        
+
         # Convert to regular dict if found, otherwise return None
         if result:
             return dict(result)
@@ -92,22 +91,22 @@ def get_patient(patient_id: str):
 def search_patients(name: str = None, abha: str = None):
     """
     Search patients by name (partial match) or ABHA number (exact match).
-    
+
     Supports two search modes:
     1. By ABHA number: Exact match on government health ID
     2. By name: Case-insensitive partial match (LIKE query)
-    
+
     Args:
         name: Patient name to search (partial match, case-insensitive)
         abha: ABHA number to search (exact match)
-    
+
     Returns:
         list[dict]: List of matching patient records (max 10 for name search)
-        
+
     Examples:
         >>> search_patients(name="Ramesh")
         [{'patient_id': 'HA001', 'name': 'Ramesh Singh', ...}]
-        
+
         >>> search_patients(abha="12-3456-7890-1234")
         [{'patient_id': 'HA001', ...}, {'patient_id': 'HB001', ...}]
     """
@@ -117,18 +116,18 @@ def search_patients(name: str = None, abha: str = None):
             # Used when we have government health ID
             query = text("SELECT * FROM patients WHERE abha_number = :abha")
             results = db.execute(query, {"abha": abha}).mappings().all()
-            
+
         elif name:
             # Name search: Case-insensitive partial match
             # LIKE query with wildcards for flexible matching
             # LIMIT 10 to prevent overwhelming results
             query = text("SELECT * FROM patients WHERE lower(name) LIKE :name LIMIT 10")
             results = db.execute(query, {"name": f"%{name.lower()}%"}).mappings().all()
-            
+
         else:
             # No search criteria provided
             return []
-        
+
         # Convert all results to regular dicts
         return [dict(row) for row in results]
 
@@ -136,16 +135,16 @@ def search_patients(name: str = None, abha: str = None):
 def get_patient_visits(patient_id: str):
     """
     Get all visit records for a specific patient.
-    
+
     Retrieves complete medical visit history for a patient,
     ordered by most recent first (descending admission date).
-    
+
     Args:
         patient_id: Unique patient identifier (e.g., "HA001")
-    
+
     Returns:
         list[dict]: List of visit records, newest first
-        
+
     Example:
         >>> get_patient_visits("HA001")
         [
@@ -156,12 +155,14 @@ def get_patient_visits(patient_id: str):
     with get_db() as db:
         # Query all visits for this patient
         # ORDER BY admission_date DESC: Most recent visits first
-        query = text("""
+        query = text(
+            """
             SELECT * FROM visits 
             WHERE patient_id = :pid 
             ORDER BY admission_date DESC
-        """)
-        
+        """
+        )
+
         # Execute and convert results
         results = db.execute(query, {"pid": patient_id}).mappings().all()
         return [dict(row) for row in results]

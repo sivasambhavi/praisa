@@ -20,10 +20,10 @@ from typing import Optional, Dict, Any
 class PatientModel(BaseModel):
     """
     Patient data model for API requests and responses.
-    
+
     Represents a patient record with all relevant fields.
     All fields except 'name' are optional to support partial data.
-    
+
     Fields:
         patient_id: Unique identifier (e.g., "HA001", "HB001")
         hospital_id: Hospital identifier (e.g., "hospital_a")
@@ -34,7 +34,7 @@ class PatientModel(BaseModel):
         abha_number: ABHA health ID (government-issued)
         address: Full residential address
         state: State/province name
-    
+
     Example:
         {
             "patient_id": "HA001",
@@ -48,28 +48,29 @@ class PatientModel(BaseModel):
             "state": "Maharashtra"
         }
     """
-    patient_id: Optional[str] = None      # Unique patient identifier
-    hospital_id: Optional[str] = None     # Hospital affiliation
-    name: str                              # Patient name (required)
-    dob: Optional[str] = None             # Date of birth
-    mobile: Optional[str] = None          # Contact number
-    gender: Optional[str] = None          # Gender
-    abha_number: Optional[str] = None     # Government health ID
-    address: Optional[str] = None         # Residential address
-    state: Optional[str] = None           # State/province
+
+    patient_id: Optional[str] = None  # Unique patient identifier
+    hospital_id: Optional[str] = None  # Hospital affiliation
+    name: str  # Patient name (required)
+    dob: Optional[str] = None  # Date of birth
+    mobile: Optional[str] = None  # Contact number
+    gender: Optional[str] = None  # Gender
+    abha_number: Optional[str] = None  # Government health ID
+    address: Optional[str] = None  # Residential address
+    state: Optional[str] = None  # State/province
 
 
 class MatchRequest(BaseModel):
     """
     Request body for patient matching endpoint.
-    
+
     Contains two patient records to be compared using the matching algorithms.
     Patients can be provided as dictionaries with any subset of fields.
-    
+
     Fields:
         patient_a: First patient data (dict)
         patient_b: Second patient data (dict)
-    
+
     Example:
         {
             "patient_a": {
@@ -84,23 +85,22 @@ class MatchRequest(BaseModel):
             }
         }
     """
+
     patient_a: Dict[str, Any] = Field(
-        ...,  # Required field
-        description="First patient data to compare"
+        ..., description="First patient data to compare"  # Required field
     )
     patient_b: Dict[str, Any] = Field(
-        ...,  # Required field
-        description="Second patient data to compare"
+        ..., description="Second patient data to compare"  # Required field
     )
 
 
 class MatchResult(BaseModel):
     """
     Match result response from matching endpoint.
-    
+
     Contains the overall match result plus detailed results from all strategies.
     Provides transparency into how the match decision was made.
-    
+
     Fields:
         match_score: Overall match score (0-100)
         confidence: Confidence level (high/medium/low/none)
@@ -109,7 +109,7 @@ class MatchResult(BaseModel):
         patient_a_id: ID of first patient
         patient_b_id: ID of second patient
         details: Full results from all 3 strategies
-    
+
     Example:
         {
             "match_score": 100.0,
@@ -125,26 +125,22 @@ class MatchResult(BaseModel):
             }
         }
     """
+
     match_score: float = Field(
-        ...,  # Required
-        description="Overall match score (0-100)"
+        ..., description="Overall match score (0-100)"  # Required
     )
     confidence: str = Field(
-        ...,  # Required
-        description="Confidence level: high/medium/low/none"
+        ..., description="Confidence level: high/medium/low/none"  # Required
     )
     method: str = Field(
         ...,  # Required
-        description="Matching method used: ABHA_EXACT/PHONETIC_INDIAN/FUZZY/NONE"
+        description="Matching method used: ABHA_EXACT/PHONETIC_INDIAN/FUZZY/NONE",
     )
     recommendation: str = Field(
-        ...,  # Required
-        description="Recommended action: MATCH/REVIEW/NO_MATCH"
+        ..., description="Recommended action: MATCH/REVIEW/NO_MATCH"  # Required
     )
     patient_a_id: str  # First patient identifier
     patient_b_id: str  # Second patient identifier
     details: Dict[str, Any] = Field(
-        ...,  # Required
-        description="Detailed results from all matching strategies"
+        ..., description="Detailed results from all matching strategies"  # Required
     )
-

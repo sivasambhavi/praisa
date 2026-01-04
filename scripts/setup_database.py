@@ -24,7 +24,7 @@ from app.database.loader import load_all_data
 def main():
     """
     Main function to set up the database.
-    
+
     Steps:
     1. Initialize database schema
     2. Load patient data from CSV files
@@ -35,16 +35,16 @@ def main():
     print("PRAISA Database Setup")
     print("=" * 80)
     print()
-    
+
     try:
         # Load all data (this also initializes the database)
         load_all_data()
-        
+
         print()
         print("=" * 80)
         print("✓ Database setup completed successfully!")
         print("=" * 80)
-        
+
     except Exception as e:
         print()
         print("=" * 80)

@@ -1,6 +1,7 @@
 """
 Pytest configuration for PRAISA tests
 """
+
 import sys
 from pathlib import Path
 

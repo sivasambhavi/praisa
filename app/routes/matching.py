@@ -24,15 +24,15 @@ router = APIRouter()
 async def match_two_patients(request: MatchRequest):
     """
     Match two patients using combined matching strategies.
-    
+
     This endpoint accepts two patient records and returns a match result
     using the waterfall matching logic (ABHA → Phonetic → Fuzzy).
-    
+
     Tries 3 strategies in order of reliability:
     1. ABHA exact match (100% confidence)
     2. Phonetic match for Indian names (90% confidence)
     3. Fuzzy match (0-100% confidence)
-    
+
     Request Body:
         {
             "patient_a": {
@@ -48,7 +48,7 @@ async def match_two_patients(request: MatchRequest):
                 ...
             }
         }
-    
+
     Returns:
         MatchResult: {
             "match_score": 100.0,
@@ -59,7 +59,7 @@ async def match_two_patients(request: MatchRequest):
             "patient_b_id": "HB001",
             "details": {...}
         }
-    
+
     Raises:
         HTTPException: 500 if matching algorithm fails
     """
@@ -68,12 +68,10 @@ async def match_two_patients(request: MatchRequest):
         # This runs all 3 strategies and returns the best match
         result = match_patients(request.patient_a, request.patient_b)
         return result
-        
+
     except Exception as e:
         # If any error occurs during matching, return 500 error
         # In production, we'd log this error for debugging
         raise HTTPException(
-            status_code=500,
-            detail=f"Error matching patients: {str(e)}"
+            status_code=500, detail=f"Error matching patients: {str(e)}"
         )
-
