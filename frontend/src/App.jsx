@@ -1,46 +1,49 @@
 import React, { useState } from 'react';
-import SearchForm from './components/SearchForm';
+import AdvancedSearch from './components/AdvancedSearch';
+import PatientList from './components/PatientList';
 import MatchResults from './components/MatchResults';
 import UnifiedHistory from './components/UnifiedHistory';
 import { searchPatients, matchPatients, getPatientHistory } from './api/client';
 
 function App() {
-    const [step, setStep] = useState('search'); // search, match, history
-    const [searchData, setSearchData] = useState(null);
+    const [step, setStep] = useState('search'); // search, results, match, history
+    const [searchResults, setSearchResults] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
     // State for match flow
     const [currentPatient, setCurrentPatient] = useState(null);
     const [matchResult, setMatchResult] = useState(null);
-    const [targetPatientId, setTargetPatientId] = useState(null); // The ID to match against
+    const [targetPatientId, setTargetPatientId] = useState(null);
     const [history, setHistory] = useState([]);
 
     const handleSearch = async (criteria) => {
         setLoading(true);
         setError(null);
+        setSearchResults([]);
+        
         try {
             const results = await searchPatients(criteria);
-            // Just take the first result for simplicity in this demo flow if multiple returned
-            // Or pass list to a selection view. For now, let's assume specific search.
+            
             if (results.length > 0) {
-                setSearchData(results[0]);
-                setCurrentPatient(results[0]);
+                setSearchResults(results);
+                setStep('results');
             } else {
-                setSearchData(null);
-                setCurrentPatient(null);
-                setError("No patient found");
+                setSearchResults([]);
+                setStep('results');
+                setError("No patients found matching your search criteria");
             }
         } catch (err) {
-            setError("Failed to search patients");
+            setError("Failed to search patients. Please try again.");
             console.error(err);
+            setSearchResults([]);
         } finally {
             setLoading(false);
         }
     };
 
-    const handleMatchClick = async () => {
-        if (!currentPatient) return;
+    const handleMatchClick = async (patient) => {
+        setCurrentPatient(patient);
         setLoading(true);
         setError(null);
 
@@ -48,18 +51,15 @@ function App() {
             // DYNAMIC CROSS-HOSPITAL MATCHING
             // Find candidates in all hospitals EXCEPT the source hospital
             const HOSPITALS = ['A', 'B', 'C', 'D', 'E'];
-            const sourceHosp = currentPatient.hospital_id ? currentPatient.hospital_id.split('_')[1].toUpperCase() : 'A';
+            const sourceHosp = patient.hospital_id ? patient.hospital_id.split('_')[1].toUpperCase() : 'A';
             const targetHospitals = HOSPITALS.filter(h => h !== sourceHosp);
 
             let bestTarget = null;
-            let bestScore = -1;
 
             // Search for candidates in other hospitals
             for (const h of targetHospitals) {
-                const candidates = await searchPatients({ name: currentPatient.name, hospital: h });
+                const candidates = await searchPatients({ type: 'name', value: patient.name, hospital: h });
                 if (candidates.length > 0) {
-                    // For the demo, we take the first candidate from the first hospital that yields a result
-                    // but we can be smarter: try to find the person with the most similar ID/ABHA if possible
                     bestTarget = candidates[0];
                     break;
                 }
@@ -67,7 +67,6 @@ function App() {
 
             // Fallback: If no direct name match, try the "typo fallback" for demo reliability
             if (!bestTarget) {
-                // Try fuzzy variations or specific known demo cases
                 const demoTypos = {
                     "Ramesh": "Ramehs",
                     "Anita": "Ainta",
@@ -75,9 +74,9 @@ function App() {
                 };
 
                 for (const [key, typo] of Object.entries(demoTypos)) {
-                    if (currentPatient.name.includes(key)) {
+                    if (patient.name.includes(key)) {
                         for (const h of targetHospitals) {
-                            const candidates = await searchPatients({ name: typo, hospital: h });
+                            const candidates = await searchPatients({ type: 'name', value: typo, hospital: h });
                             if (candidates.length > 0) {
                                 bestTarget = candidates[0];
                                 break;
@@ -94,11 +93,10 @@ function App() {
 
             setTargetPatientId(bestTarget.id);
 
-            // 2. Perform the Match
-            const result = await matchPatients(currentPatient.id, bestTarget.id);
+            // Perform the Match
+            const result = await matchPatients(patient.id, bestTarget.id);
 
-            // Store full target object for display (MatchResults needs it)
-            // We'll slip it into matchResult or state
+            // Store full target object for display
             setMatchResult({ ...result, targetPatient: bestTarget });
             setStep('match');
         } catch (err) {
@@ -108,20 +106,24 @@ function App() {
         }
     };
 
-    const handleHistoryClick = async () => {
-        if (!currentPatient) return;
+    const handleHistoryClick = async (patient) => {
+        if (!patient) {
+            patient = currentPatient;
+        }
+        
+        setCurrentPatient(patient);
         setLoading(true);
         setError(null);
 
         try {
-            // Fetch source patient history (Hospital A)
-            const visitsA = await getPatientHistory(currentPatient.id, 'A');
+            // Fetch source patient history
+            const sourceHosp = patient.hospital_id ? patient.hospital_id.split('_')[1].toUpperCase() : 'A';
+            const visitsA = await getPatientHistory(patient.id, sourceHosp);
 
             // Fetch target patient history if we have a match target
             let visitsB = [];
             if (targetPatientId) {
                 try {
-                    // Extract hospital prefix from target ID (e.g. HB001 -> B)
                     const targetHosp = targetPatientId.substring(1, 2);
                     visitsB = await getPatientHistory(targetPatientId, targetHosp);
                 } catch (e) {
@@ -131,7 +133,6 @@ function App() {
 
             // Combine and sort by date descending
             const combinedHistory = [...visitsA, ...visitsB].sort((a, b) => {
-                // Date strings might be empty if invalid
                 const dateA = a.date ? new Date(a.date) : new Date(0);
                 const dateB = b.date ? new Date(b.date) : new Date(0);
                 return dateB - dateA;
@@ -147,20 +148,15 @@ function App() {
         }
     };
 
-    // Derived state for MatchResults component
-    // It expects sourcePatient, targetPatient, matchData
-    // We have currentPatient (source). We need targetPatient object.
-    // matchResult contains details but maybe not full patient object?
-    // Let's modify MatchResults if needed or fetch target patient details.
-
-    // Actually, matchResult from backend returns:
-    // { match_score, ... details: { ... } }
-    // It doesn't return the full patient objects B.
-    // But we fetched them in `matchPatients` client method!
-    // We might need to store them.
-
-    // Simplified for now: We pass what we have.
-    // Ideally we should update MatchResults to accept the structure we have.
+    const handleNewSearch = () => {
+        setStep('search');
+        setSearchResults([]);
+        setCurrentPatient(null);
+        setMatchResult(null);
+        setTargetPatientId(null);
+        setHistory([]);
+        setError(null);
+    };
 
     return (
         <div className="min-h-screen bg-transparent p-4 md:p-8 font-sans text-gray-800">
@@ -201,50 +197,46 @@ function App() {
                     </p>
                 </header>
 
+                {/* Error Display */}
                 {error && (
-                    <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
-                        <span className="block sm:inline">{error}</span>
+                    <div className="glass-card p-4 mb-6 border-l-4 border-red-500 animate-fade-in">
+                        <div className="flex items-center gap-3">
+                            <svg className="w-6 h-6 text-red-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                            </svg>
+                            <span className="text-white font-medium">{error}</span>
+                        </div>
                     </div>
                 )}
 
+                {/* Search View */}
                 {step === 'search' && (
-                    <div className="animate-fade-in-up">
-                        <SearchForm onSearch={handleSearch} isLoading={loading} />
+                    <div>
+                        <AdvancedSearch onSearch={handleSearch} isLoading={loading} />
+                    </div>
+                )}
 
-                        {loading && <div className="text-center mt-4">Loading...</div>}
-
-                        {!loading && searchData && (
-                            <div className="bg-white p-6 rounded-lg shadow-md mt-6 animate-fade-in">
-                                <h3 className="text-lg font-bold mb-4 text-gray-800">Search Results</h3>
-                                <div className="overflow-x-auto">
-                                    <table className="w-full text-left border-collapse">
-                                        <thead className="bg-gray-50 text-gray-600 uppercase text-xs">
-                                            <tr>
-                                                <th className="p-3 border-b">ID</th>
-                                                <th className="p-3 border-b">Name</th>
-                                                <th className="p-3 border-b">DOB</th>
-                                                <th className="p-3 border-b">Action</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr className="hover:bg-gray-50 transition-colors">
-                                                <td className="p-3 border-b">{searchData.id}</td>
-                                                <td className="p-3 border-b font-medium text-gray-900">{searchData.name}</td>
-                                                <td className="p-3 border-b">{searchData.dob}</td>
-                                                <td className="p-3 border-b">
-                                                    <button
-                                                        onClick={handleMatchClick}
-                                                        className="bg-green-600 text-white px-4 py-2 rounded shadow hover:bg-green-700 transition transform hover:scale-105"
-                                                    >
-                                                        Match across Platform
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        )}
+                {/* Results View */}
+                {step === 'results' && (
+                    <div>
+                        <PatientList
+                            patients={searchResults}
+                            loading={loading}
+                            onMatchClick={handleMatchClick}
+                            onHistoryClick={handleHistoryClick}
+                        />
+                        
+                        <div className="mt-8 text-center">
+                            <button
+                                onClick={handleNewSearch}
+                                className="glass-card px-6 py-3 text-white font-semibold hover:scale-105 transition-all inline-flex items-center gap-2"
+                            >
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                                </svg>
+                                New Search
+                            </button>
+                        </div>
                     </div>
                 )}
 
@@ -265,12 +257,16 @@ function App() {
                     </div>
                 )}
 
-                {step !== 'search' && (
+                {/* Back to Search Button (for match and history views) */}
+                {step !== 'search' && step !== 'results' && (
                     <div className="mt-12 text-center pb-8">
                         <button
-                            onClick={() => { setStep('search'); setSearchData(null); setCurrentPatient(null); setMatchResult(null); }}
-                            className="text-gray-500 hover:text-blue-600 underline transition-colors"
+                            onClick={handleNewSearch}
+                            className="glass-card px-8 py-4 text-white font-bold text-lg hover:scale-105 transition-all inline-flex items-center gap-3"
                         >
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                            </svg>
                             Start New Search
                         </button>
                     </div>
