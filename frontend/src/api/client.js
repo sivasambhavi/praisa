@@ -33,17 +33,35 @@ const transformVisit = (data, hospitalLabel) => {
 };
 
 // API Methods
-export const searchPatients = async ({ name, hospital }) => {
+export const searchPatients = async ({ type = 'name', value, hospital }) => {
     try {
-        console.log(`Searching for ${name} in ${hospital}`);
+        console.log(`Searching for ${value} (type: ${type}) in ${hospital}`);
 
         // Prepare backend hospital_id string (e.g. 'hospital_a')
         const hospital_id = hospital ? `hospital_${hospital.toLowerCase()}` : undefined;
 
-        // Endpoint: GET /api/patients/search?name=...&hospital_id=...
-        const response = await client.get('/api/patients/search', {
-            params: { name, hospital_id }
-        });
+        // Map search type to appropriate query parameter
+        const params = { hospital_id };
+        
+        switch (type) {
+            case 'name':
+                params.name = value;
+                break;
+            case 'abha':
+                params.abha = value;
+                break;
+            case 'aadhar':
+                params.aadhar = value;
+                break;
+            case 'phone':
+                params.phone = value;
+                break;
+            default:
+                params.name = value;
+        }
+
+        // Endpoint: GET /api/patients/search with appropriate params
+        const response = await client.get('/api/patients/search', { params });
 
         const patients = response.data.results || [];
         return patients.map(transformPatient);
