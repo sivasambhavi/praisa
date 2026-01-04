@@ -6,7 +6,6 @@ Loads from environment variables and .env file.
 """
 
 from pydantic_settings import BaseSettings
-from typing import List
 
 
 class Settings(BaseSettings):

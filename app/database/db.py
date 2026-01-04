@@ -157,8 +157,8 @@ def get_patient_visits(patient_id: str):
         # ORDER BY admission_date DESC: Most recent visits first
         query = text(
             """
-            SELECT * FROM visits 
-            WHERE patient_id = :pid 
+            SELECT * FROM visits
+            WHERE patient_id = :pid
             ORDER BY admission_date DESC
         """
         )

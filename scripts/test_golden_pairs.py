@@ -65,9 +65,10 @@ def test_combined_matching():
             failed += 1
 
         print(f"{status} {ha_id} ({name_a:20s}) <-> {hb_id} ({name_b:20s})")
-        print(
-            f"   Score: {result['match_score']:5.1f}% | Method: {result['method']:20s} | {result['recommendation']}"
-        )
+        score = result["match_score"]
+        method = result["method"]
+        recommendation = result["recommendation"]
+        print(f"   Score: {score:5.1f}% | Method: {method:20s} | {recommendation}")
         print(f"   Description: {description}")
         print()
 

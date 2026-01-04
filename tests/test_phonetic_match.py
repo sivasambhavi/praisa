@@ -5,10 +5,7 @@ Tests the phonetic matching algorithm optimized for Indian names.
 This is the WOW FACTOR of PRAISA!
 """
 
-from app.matching.phonetic_match import (
-    phonetic_match_indian,
-    normalize_indian_name
-)
+from app.matching.phonetic_match import phonetic_match_indian, normalize_indian_name
 
 
 class TestNormalizeIndianName:
