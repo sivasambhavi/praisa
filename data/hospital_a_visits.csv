@@ -1,21 +1,57 @@
 visit_id,patient_id,admission_date,visit_type,diagnosis,doctor_name
-VA001,HA001,2025-10-15 09:00:00,OPD,Type 2 Diabetes Mellitus,Dr. Anjali Mehta
-VA002,HA001,2025-12-20 14:30:00,OPD,Diabetes Follow-up,Dr. Anjali Mehta
-VA003,HA002,2025-11-05 10:15:00,Emergency,Severe Headache,Dr. Rajesh Kumar
-VA004,HA002,2025-11-12 09:30:00,OPD,Migraine with Aura,Dr. Rajesh Kumar
-VA005,HA003,2025-09-10 11:00:00,OPD,Hypertension,Dr. Suresh Reddy
-VA006,HA003,2025-12-01 10:00:00,OPD,Routine Checkup,Dr. Suresh Reddy
-VA007,HA004,2025-10-25 15:00:00,OPD,Viral Fever,Dr. Meera Iyer
-VA008,HA004,2025-10-28 09:00:00,OPD,Fever Follow-up,Dr. Meera Iyer
-VA009,HA005,2025-11-15 12:30:00,OPD,Allergic Rhinitis,Dr. Vikram Singh
-VA010,HA005,2025-12-05 16:00:00,OPD,Allergy Follow-up,Dr. Vikram Singh
-VA011,HA006,2025-10-01 10:30:00,OPD,Lower Back Pain,Dr. Amit Patel
-VA012,HA006,2025-10-15 11:00:00,OPD,Physiotherapy Session,Dr. Amit Patel
-VA013,HA007,2025-11-20 09:45:00,OPD,Gastritis,Dr. Priya Desai
-VA014,HA007,2025-12-10 10:00:00,OPD,Follow-up Gastritis,Dr. Priya Desai
-VA015,HA008,2025-09-25 14:00:00,OPD,Conjunctivitis,Dr. Neha Gupta
-VA016,HA008,2025-10-02 09:00:00,OPD,Eye Checkup,Dr. Neha Gupta
-VA017,HA009,2025-11-08 11:30:00,Emergency,Fractured Wrist,Dr. Rahul Sharma
-VA018,HA009,2025-12-20 10:00:00,OPD,Cast Removal,Dr. Rahul Sharma
-VA019,HA010,2025-10-12 13:00:00,OPD,Bronchitis,Dr. Sanjay Verma
-VA020,HA010,2025-10-20 09:30:00,OPD,Respiratory Follow-up,Dr. Sanjay Verma
+VA001-1,HA001,2025-03-11,Emergency,Typhoid,Dr. Who
+VA001-2,HA001,2025-11-13,Emergency,Cough,Dr. Smith
+VA002-1,HA002,2025-11-20,OPD,Stomach Ache,Dr. Jones
+VA002-2,HA002,2025-11-25,OPD,Diabetes,Dr. Smith
+VA002-3,HA002,2025-05-13,OPD,Stomach Ache,Dr. Jones
+VA003-1,HA003,2025-08-15,Emergency,Headache,Dr. Smith
+VA003-2,HA003,2025-05-21,OPD,Stomach Ache,Dr. Smith
+VA003-3,HA003,2025-12-08,Emergency,Fever,Dr. Jones
+VA003-4,HA003,2025-03-22,OPD,Fever,Dr. Jones
+VA003-5,HA003,2025-09-08,Emergency,Fracture,Dr. Smith
+VA004-1,HA004,2025-12-13,OPD,Cold,Dr. Jones
+VA005-1,HA005,2025-08-15,IPD,Typhoid,Dr. House
+VA005-2,HA005,2025-04-04,OPD,Fever,Dr. Strange
+VA005-3,HA005,2025-10-08,Emergency,Malaria,Dr. Strange
+VA005-4,HA005,2025-01-30,IPD,Typhoid,Dr. Smith
+VA006-1,HA006,2025-07-29,IPD,Cough,Dr. Smith
+VA006-2,HA006,2025-07-09,OPD,Stomach Ache,Dr. Strange
+VA006-3,HA006,2025-03-24,Emergency,Fever,Dr. Smith
+VA007-1,HA007,2025-11-22,OPD,Fracture,Dr. Strange
+VA007-2,HA007,2025-03-13,IPD,Cough,Dr. Smith
+VA008-1,HA008,2025-12-19,OPD,Cough,Dr. Smith
+VA008-2,HA008,2025-10-19,Emergency,Typhoid,Dr. House
+VA008-3,HA008,2025-10-27,OPD,Cough,Dr. House
+VA008-4,HA008,2025-01-29,IPD,Malaria,Dr. Jones
+VA008-5,HA008,2025-09-20,Emergency,Cough,Dr. Jones
+VA009-1,HA009,2025-12-08,Emergency,Stomach Ache,Dr. Smith
+VA009-2,HA009,2025-02-02,Emergency,Dengue,Dr. Strange
+VA009-3,HA009,2025-04-26,OPD,Fracture,Dr. Strange
+VA010-1,HA010,2025-10-30,IPD,Cold,Dr. Smith
+VA010-2,HA010,2025-03-01,IPD,Fracture,Dr. Strange
+VA011-1,HA011,2025-07-14,OPD,Diabetes,Dr. Jones
+VA011-2,HA011,2025-12-04,IPD,Diabetes,Dr. Jones
+VA012-1,HA012,2025-08-20,IPD,Fracture,Dr. Jones
+VA012-2,HA012,2025-08-02,OPD,Headache,Dr. Smith
+VA012-3,HA012,2025-04-11,IPD,Malaria,Dr. House
+VA012-4,HA012,2025-06-23,Emergency,Cold,Dr. Jones
+VA012-5,HA012,2025-07-23,Emergency,Diabetes,Dr. House
+VA013-1,HA013,2025-09-06,OPD,Diabetes,Dr. Smith
+VA014-1,HA014,2025-09-13,OPD,Typhoid,Dr. Jones
+VA014-2,HA014,2025-04-23,OPD,Cold,Dr. Who
+VA014-3,HA014,2025-02-13,IPD,Typhoid,Dr. Strange
+VA015-1,HA015,2025-04-09,OPD,Stomach Ache,Dr. Strange
+VA015-2,HA015,2025-02-06,OPD,Typhoid,Dr. Smith
+VA015-3,HA015,2025-09-11,OPD,Dengue,Dr. Strange
+VA016-1,HA016,2025-05-17,IPD,Headache,Dr. Smith
+VA016-2,HA016,2025-05-04,OPD,Cough,Dr. House
+VA017-1,HA017,2025-04-29,IPD,Stomach Ache,Dr. Jones
+VA017-2,HA017,2025-11-26,OPD,Fever,Dr. Strange
+VA017-3,HA017,2025-03-05,IPD,Dengue,Dr. Strange
+VA018-1,HA018,2025-03-23,IPD,Headache,Dr. Smith
+VA018-2,HA018,2025-12-13,OPD,Malaria,Dr. Smith
+VA018-3,HA018,2025-03-10,Emergency,Dengue,Dr. Who
+VA018-4,HA018,2025-06-02,OPD,Fracture,Dr. Smith
+VA019-1,HA019,2025-07-09,OPD,Cold,Dr. Who
+VA019-2,HA019,2025-09-02,IPD,Malaria,Dr. Smith
+VA020-1,HA020,2025-03-25,OPD,Cough,Dr. Jones

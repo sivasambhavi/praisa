@@ -1,0 +1,21 @@
+patient_id,name,dob,mobile,gender,abha_number,address,state
+HE001,Rajesh Yadav,1905-02-27,806614717,Other,36140655396092,"House No 563, Street 14",West Bengal
+HE002,Ramesh Malhotra,1896-07-06,661677983,M,31186806229812,"House No 845, Street 11",Maharashtra
+HE003,Jiya Banerjee,1939-10-18,8022274421,Other,23655321580858,"House No 172, Street 2",Karnataka
+HE004,Rajesh Verma,2007-08-03,8127056242,Other,62298055831734,"House No 79, Street 16",Uttar Pradesh
+HE005,Gita Banerjee,1877-03-10,0983933347,Other,96014965873939,"House No 759, Street 7",Maharashtra
+HE006,Rita Kumar,1981-07-26,930557011,Other,29083181407426,"House No 457, Street 19",Uttar Pradesh
+HE007,Mohit Patel,2026-10-27,9377871885,M,81417324368864,"House No 304, Street 2",Maharashtra
+HE008,Jiya Sharma,1957-01-30,98765ABCDE,Other,86719200925493,"House No 93, Street 7",Tamil Nadu
+HE009,Sobhit Malhotra,2021-01-11,8195136989,F,833909,"House No 768, Street 15",West Bengal
+HE010,Ramesh Shah,1991-12-07,0918986118,Other,75352873067600,"House No 972, Street 1",West Bengal
+HE011,Jyia Yadav,1937-12-23,792755760,F,40508751997553,"House No 409, Street 17",Bihar
+HE012,Mohit Gupta,1979-10-03,6451379195,Other,27614471928841,"House No 670, Street 2",Delhi
+HE013,Gita Verma,1964-03-20,6974356239,Other,71075021370156,"House No 136, Street 16",Bihar
+HE014,Siya Gupta,1988-05-19,6445339605,M,37420292379203,"House No 331, Street 8",Tamil Nadu
+HE015,Priya Patel,1950-01-25,0978138533,M,908535,"House No 73, Street 5",Delhi
+HE016,Riya Shah,1982-01-20,8030881845,M,317245,"House No 416, Street 18",Karnataka
+HE017,Mahesh Malhotra,2015-08-13,98765ABCDE,Other,34336150469662,"House No 512, Street 20",Maharashtra
+HE018,Gita Banerjee,1984-07-15,7120347865,M,78276049539957,"House No 684, Street 8",Tamil Nadu
+HE019,Antia Yadav,2001-03-09,0610027124,Other,38653917361108,"House No 447, Street 14",Maharashtra
+HE020,Mohit Gupta,1977-01-18,769926188,Other,66514799304531,"House No 744, Street 5",Bihar

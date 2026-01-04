@@ -15,6 +15,7 @@ Date: 2026-01-04
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 from contextlib import contextmanager
+from rapidfuzz import process, fuzz
 
 # Database Configuration
 # Using SQLite for POC demo - file-based database
@@ -88,7 +89,7 @@ def get_patient(patient_id: str):
         return None
 
 
-def search_patients(name: str = None, abha: str = None):
+def search_patients(name: str = None, abha: str = None, hospital_id: str = None):
     """
     Search patients by name (partial match) or ABHA number (exact match).
 
@@ -113,23 +114,67 @@ def search_patients(name: str = None, abha: str = None):
     with get_db() as db:
         if abha:
             # ABHA search: Exact match
-            # Used when we have government health ID
-            query = text("SELECT * FROM patients WHERE abha_number = :abha")
-            results = db.execute(query, {"abha": abha}).mappings().all()
+            sql = "SELECT * FROM patients WHERE abha_number = :abha"
+            params = {"abha": abha}
+            
+            if hospital_id:
+                sql += " AND hospital_id = :hosp"
+                params["hosp"] = hospital_id
+                
+            query = text(sql)
+            results = db.execute(query, params).mappings().all()
 
         elif name:
-            # Name search: Case-insensitive partial match
-            # LIKE query with wildcards for flexible matching
-            # LIMIT 10 to prevent overwhelming results
-            query = text("SELECT * FROM patients WHERE lower(name) LIKE :name LIMIT 10")
-            results = db.execute(query, {"name": f"%{name.lower()}%"}).mappings().all()
+            # 1. Exact/Partial Match (Standard SQL)
+            sql = "SELECT * FROM patients WHERE lower(name) LIKE :name"
+            params = {"name": f"%{name.lower()}%"}
+            
+            if hospital_id:
+                sql += " AND hospital_id = :hosp"
+                params["hosp"] = hospital_id
+                
+            query = text(sql + " LIMIT 20")
+            sql_results = [dict(row) for row in db.execute(query, params).mappings().all()]
+            
+            # 2. Fuzzy Match (Typo Resilience)
+            # If we don't have enough exact matches, find candidates using fuzzy similarity
+            if len(sql_results) < 5:
+                # Fetch all patients (or filtered by hospital)
+                all_sql = "SELECT * FROM patients"
+                all_params = {}
+                if hospital_id:
+                    all_sql += " WHERE hospital_id = :hosp"
+                    all_params["hosp"] = hospital_id
+                
+                all_query = text(all_sql)
+                all_patients = [dict(row) for row in db.execute(all_query, all_params).mappings().all()]
+                
+                # Extract names for comparison
+                names_map = {p['id']: p['name'] for p in all_patients}
+                
+                # Find top fuzzy matches
+                fuzzy_results = process.extract(
+                    name, 
+                    names_map.values(), 
+                    scorer=fuzz.ratio, 
+                    limit=10, 
+                    score_cutoff=70
+                )
+                
+                # Deduplicate and merge
+                matched_names = [res[0] for res in fuzzy_results]
+                for p in all_patients:
+                    if p['name'] in matched_names and p not in sql_results:
+                        sql_results.append(p)
+
+            results = sql_results[:10] # Return top 10
 
         else:
             # No search criteria provided
             return []
 
-        # Convert all results to regular dicts
-        return [dict(row) for row in results]
+        # Convert all results to regular dicts (already dicts)
+        return results
 
 
 def get_patient_visits(patient_id: str):

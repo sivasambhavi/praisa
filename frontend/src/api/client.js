@@ -36,22 +36,17 @@ const transformVisit = (data, hospitalLabel) => {
 export const searchPatients = async ({ name, hospital }) => {
     try {
         console.log(`Searching for ${name} in ${hospital}`);
-        // Endpoint: GET /api/patients/search?name=...
+
+        // Prepare backend hospital_id string (e.g. 'hospital_a')
+        const hospital_id = hospital ? `hospital_${hospital.toLowerCase()}` : undefined;
+
+        // Endpoint: GET /api/patients/search?name=...&hospital_id=...
         const response = await client.get('/api/patients/search', {
-            params: { name }
+            params: { name, hospital_id }
         });
 
-        // Response format: { results: [...], count: ... }
         const patients = response.data.results || [];
-
-        // Optional client-side filtering if backend doesn't support hospital filter
-        // The current backend `search_patients` only takes name or abha.
-        // So we filter by hospital_id on the client for the specific demo flow.
-        const filtered = hospital
-            ? patients.filter(p => p.hospital_id === `hospital_${hospital.toLowerCase()}`)
-            : patients;
-
-        return filtered.map(transformPatient);
+        return patients.map(transformPatient);
     } catch (error) {
         console.error("Search failed:", error);
         throw error;

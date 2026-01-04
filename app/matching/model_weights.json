@@ -1,0 +1,10 @@
+{
+    "Fuzzy Ratio": 0.3,
+    "Token Sort Ratio": 0.2,
+    "Phonetic Match": 1.5,
+    "Indian Typo Pattern": 0.5,
+    "ABHA Match": 5.0,
+    "Mobile Match": 3.0,
+    "Gender Match": 0.5,
+    "DOB Match": 1.0
+}

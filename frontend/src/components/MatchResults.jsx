@@ -57,7 +57,9 @@ const MatchResults = ({ sourcePatient, targetPatient, matchData, onHistoryClick 
                     </div>
                     <div className="mt-6 flex items-center gap-2 text-blue-700 bg-blue-100/50 p-2 rounded-lg">
                         <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-                        <span className="text-xs font-semibold">Hospital A (Apollo)</span>
+                        <span className="text-xs font-semibold">
+                            {sourcePatient.hospital_id ? sourcePatient.hospital_id.replace('hospital_', 'Hospital ').toUpperCase() : 'Hospital A'}
+                        </span>
                     </div>
                 </div>
 
@@ -90,9 +92,38 @@ const MatchResults = ({ sourcePatient, targetPatient, matchData, onHistoryClick 
                             <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Match Score</span>
                         </div>
                     </div>
-                    <div className="mt-4 text-center">
-                        <div className="text-sm font-bold text-gray-600 bg-white px-4 py-1 rounded-full shadow-sm border border-gray-100 inline-block">
-                            {matchData.method || "Phonetic Analysis"}
+                    <div className="mt-4 text-center space-y-3">
+                        <div className={`text-xs font-bold px-4 py-1.5 rounded-full shadow-sm border inline-block ${matchData.confidence === 'high' ? 'bg-green-50 text-green-700 border-green-200' :
+                                matchData.confidence === 'medium' ? 'bg-yellow-50 text-yellow-700 border-yellow-200' :
+                                    'bg-gray-50 text-gray-700 border-gray-200'
+                            }`}>
+                            METHOD: {matchData.method || "Phonetic Analysis"}
+                        </div>
+
+                        <div className="flex flex-col items-center gap-1">
+                            <span className={`text-[10px] font-bold uppercase tracking-widest ${matchData.confidence === 'high' ? 'text-green-600' : 'text-yellow-600'
+                                }`}>Confidence: {matchData.confidence?.toUpperCase() || "LOW"}</span>
+                            <span className={`text-xl font-black ${matchData.recommendation === 'MATCH' ? 'text-green-600' : 'text-yellow-600'
+                                }`}>
+                                {matchData.recommendation || "REVIEW"}
+                            </span>
+                        </div>
+
+                        {/* Matched Fields Checklist (Junior PRD requirement) */}
+                        <div className="mt-6 text-left space-y-1.5 bg-white/50 p-4 rounded-xl border border-gray-100/50">
+                            {['ABHA Number', 'Date of Birth', 'Phone Number', 'Name (phonetic)'].map(field => {
+                                const isMatched = matchData.matched_fields?.includes(field);
+                                return (
+                                    <div key={field} className="flex items-center gap-3">
+                                        <div className={`w-5 h-5 rounded-full flex items-center justify-center transition-all ${isMatched ? 'bg-green-500 text-white scale-110' : 'bg-gray-100 text-gray-300'}`}>
+                                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
+                                        </div>
+                                        <span className={`text-xs font-bold transition-all ${isMatched ? 'text-gray-700' : 'text-gray-400 font-normal line-through opacity-40'}`}>
+                                            {field}
+                                        </span>
+                                    </div>
+                                );
+                            })}
                         </div>
                     </div>
                 </div>
@@ -104,9 +135,15 @@ const MatchResults = ({ sourcePatient, targetPatient, matchData, onHistoryClick 
                     </div>
                     <div className="text-xs font-bold text-green-600 uppercase tracking-widest mb-1">Target Record</div>
                     <div className="text-2xl font-bold text-gray-900 mb-4">
-                        {targetPatient.name.split('').map((char, i) => (
-                            sourcePatient.name[i] !== char ? <span key={i} className="text-red-500 bg-red-50">{char}</span> : char
-                        ))}
+                        {targetPatient.name.split('').map((char, i) => {
+                            const isDiff = sourcePatient.name.toLowerCase().indexOf(char.toLowerCase()) === -1 ||
+                                (sourcePatient.name[i] && sourcePatient.name[i].toLowerCase() !== char.toLowerCase());
+                            return isDiff ? (
+                                <span key={i} className="text-red-500 bg-red-50/50 ring-1 ring-red-100 px-0.5 rounded">
+                                    {char}
+                                </span>
+                            ) : char;
+                        })}
                     </div>
 
                     <div className="space-y-3">
@@ -125,7 +162,9 @@ const MatchResults = ({ sourcePatient, targetPatient, matchData, onHistoryClick 
                     </div>
                     <div className="mt-6 flex items-center gap-2 text-green-700 bg-green-100/50 p-2 rounded-lg">
                         <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                        <span className="text-xs font-semibold">Hospital B (Max)</span>
+                        <span className="text-xs font-semibold">
+                            {targetPatient.hospital_id ? targetPatient.hospital_id.replace('hospital_', 'Hospital ').toUpperCase() : 'Hospital B'}
+                        </span>
                     </div>
                 </div>
             </div>

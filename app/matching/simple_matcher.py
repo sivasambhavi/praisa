@@ -20,6 +20,10 @@ Date: 2026-01-04
 from app.matching.abha_match import abha_exact_match
 from app.matching.phonetic_match import phonetic_match_indian
 from app.matching.fuzzy_match import fuzzy_match
+from app.matching.ml_matcher import MLPatientMatcher
+
+# Initialize the global ML matcher (loads weights from disk if available)
+ml_matcher = MLPatientMatcher()
 
 
 def match_patients(patient_a: dict, patient_b: dict) -> dict:
@@ -76,82 +80,37 @@ def match_patients(patient_a: dict, patient_b: dict) -> dict:
     patient_a_id = patient_a.get("patient_id", "UNKNOWN")
     patient_b_id = patient_b.get("patient_id", "UNKNOWN")
 
-    # Step 1: Run all 3 matching strategies
-    # We run all strategies to provide complete details in the response,
-    # even though we'll use only the first successful match
+    # Step 1: Run ML Decision Engine
+    # The ML model extracts features (ABHA, Phonetic, Fuzzy, DOB, etc.) 
+    # and returns a probability based on learned weights.
+    ml_res = ml_matcher.predict_detailed(patient_a, patient_b)
+    
+    match_score = ml_res["prob"] * 100
+    method = ml_res["method"]
+    matched_fields = ml_res["matched_fields"]
 
-    # Strategy 1: ABHA exact match (government health ID)
-    abha_result = abha_exact_match(patient_a, patient_b)
-
-    # Strategy 2: Phonetic match (Indian name variations)
-    phonetic_result = phonetic_match_indian(
-        patient_a.get("name", ""),  # Extract name, default to empty string
-        patient_b.get("name", ""),
-    )
-
-    # Strategy 3: Fuzzy match (string similarity)
-    fuzzy_result = fuzzy_match(patient_a.get("name", ""), patient_b.get("name", ""))
-
-    # Step 2: Apply waterfall logic to determine final match result
-    # We check strategies in order of reliability and stop at first match
-
-    if abha_result["matched"]:
-        # Case 1: ABHA exact match - HIGHEST CONFIDENCE
-        # Government-issued health ID matched exactly
-        # This is 100% certain - same person
-        match_score = abha_result["score"]  # 100.0
-        method = abha_result["method"]  # "ABHA_EXACT"
+    # Step 2: Determine confidence and recommendation based on ML score
+    if match_score >= 80:
         confidence = "high"
         recommendation = "MATCH"
-
-    elif phonetic_result["matched"]:
-        # Case 2: Phonetic match - HIGH CONFIDENCE
-        # Names match phonetically after Indian transliteration rules
-        # Example: "Ramesh" matches "Ramehs", "Vijay" matches "Wijay"
-        match_score = phonetic_result["score"]  # 90.0
-        method = phonetic_result["method"]  # "PHONETIC_INDIAN"
-        confidence = "high"
-        recommendation = "MATCH"
-
-    elif fuzzy_result["matched"]:
-        # Case 3: Fuzzy match >= 80% - MEDIUM CONFIDENCE
-        # String similarity is high enough to suggest same person
-        # Handles typos and minor variations
-        match_score = fuzzy_result["score"]  # 80-100
-        method = fuzzy_result["method"]  # "FUZZY"
+    elif match_score >= 60:
         confidence = "medium"
-        recommendation = "MATCH"
-
-    elif fuzzy_result["score"] >= 60:
-        # Case 4: Fuzzy match 60-79% - LOW CONFIDENCE
-        # Some similarity but not enough to auto-match
-        # Flag for manual review by hospital staff
-        match_score = fuzzy_result["score"]  # 60-79
-        method = fuzzy_result["method"]  # "FUZZY"
-        confidence = "low"
-        recommendation = "REVIEW"  # Needs human verification
-
+        recommendation = "REVIEW"
     else:
-        # Case 5: No match - NO CONFIDENCE
-        # All strategies failed to find a match
-        # These are likely different patients
-        match_score = 0.0
-        method = "NONE"
         confidence = "none"
         recommendation = "NO_MATCH"
 
     # Step 3: Return comprehensive result
-    # Include both the final decision and all strategy details for transparency
     return {
-        "match_score": match_score,  # Final score (0-100)
-        "confidence": confidence,  # Confidence level
-        "method": method,  # Which strategy was used
-        "recommendation": recommendation,  # What action to take
-        "patient_a_id": patient_a_id,  # First patient ID
-        "patient_b_id": patient_b_id,  # Second patient ID
-        "details": {  # Full results from all strategies (for debugging/audit)
-            "abha_result": abha_result,
-            "phonetic_result": phonetic_result,
-            "fuzzy_result": fuzzy_result,
+        "match_score": match_score,
+        "confidence": confidence,
+        "method": method,
+        "recommendation": recommendation,
+        "matched_fields": matched_fields,
+        "patient_a_id": patient_a_id,
+        "patient_b_id": patient_b_id,
+        "details": {
+            "ml_result": ml_res,
+            "is_ml_driven": True
         },
     }

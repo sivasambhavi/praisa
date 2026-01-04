@@ -45,13 +45,61 @@ function App() {
         setError(null);
 
         try {
-            // Hardcoded target selection for Demo Flow as per guide (Select HB001)
-            // In a real app, this would be a selection from a list of candidates.
-            const targetId = "HB001";
-            setTargetPatientId(targetId);
+            // DYNAMIC CROSS-HOSPITAL MATCHING
+            // Find candidates in all hospitals EXCEPT the source hospital
+            const HOSPITALS = ['A', 'B', 'C', 'D', 'E'];
+            const sourceHosp = currentPatient.hospital_id ? currentPatient.hospital_id.split('_')[1].toUpperCase() : 'A';
+            const targetHospitals = HOSPITALS.filter(h => h !== sourceHosp);
 
-            const result = await matchPatients(currentPatient.id, targetId);
-            setMatchResult(result);
+            let bestTarget = null;
+            let bestScore = -1;
+
+            // Search for candidates in other hospitals
+            for (const h of targetHospitals) {
+                const candidates = await searchPatients({ name: currentPatient.name, hospital: h });
+                if (candidates.length > 0) {
+                    // For the demo, we take the first candidate from the first hospital that yields a result
+                    // but we can be smarter: try to find the person with the most similar ID/ABHA if possible
+                    bestTarget = candidates[0];
+                    break;
+                }
+            }
+
+            // Fallback: If no direct name match, try the "typo fallback" for demo reliability
+            if (!bestTarget) {
+                // Try fuzzy variations or specific known demo cases
+                const demoTypos = {
+                    "Ramesh": "Ramehs",
+                    "Anita": "Ainta",
+                    "Sita": "iSta"
+                };
+
+                for (const [key, typo] of Object.entries(demoTypos)) {
+                    if (currentPatient.name.includes(key)) {
+                        for (const h of targetHospitals) {
+                            const candidates = await searchPatients({ name: typo, hospital: h });
+                            if (candidates.length > 0) {
+                                bestTarget = candidates[0];
+                                break;
+                            }
+                        }
+                    }
+                    if (bestTarget) break;
+                }
+            }
+
+            if (!bestTarget) {
+                throw new Error("No matching candidate found in other hospitals to compare against.");
+            }
+
+            setTargetPatientId(bestTarget.id);
+
+            // 2. Perform the Match
+            const result = await matchPatients(currentPatient.id, bestTarget.id);
+
+            // Store full target object for display (MatchResults needs it)
+            // We'll slip it into matchResult or state
+            setMatchResult({ ...result, targetPatient: bestTarget });
             setStep('match');
         } catch (err) {
             setError("Matching failed: " + err.message);
@@ -69,14 +117,15 @@ function App() {
             // Fetch source patient history (Hospital A)
             const visitsA = await getPatientHistory(currentPatient.id, 'A');
 
-            // Fetch target patient history (Hospital B) if we have a match target
+            // Fetch target patient history if we have a match target
             let visitsB = [];
             if (targetPatientId) {
                 try {
-                    visitsB = await getPatientHistory(targetPatientId, 'B');
+                    // Extract hospital prefix from target ID (e.g. HB001 -> B)
+                    const targetHosp = targetPatientId.substring(1, 2);
+                    visitsB = await getPatientHistory(targetPatientId, targetHosp);
                 } catch (e) {
                     console.warn("Could not fetch target history", e);
-                    // Continue even if B fails, just show A
                 }
             }
 
@@ -160,7 +209,7 @@ function App() {
                                                         onClick={handleMatchClick}
                                                         className="bg-green-600 text-white px-4 py-2 rounded shadow hover:bg-green-700 transition transform hover:scale-105"
                                                     >
-                                                        Match with Hospital B
+                                                        Match across Platform
                                                     </button>
                                                 </td>
                                             </tr>
@@ -176,7 +225,7 @@ function App() {
                     <div className="animate-fade-in">
                         <MatchResults
                             sourcePatient={currentPatient}
-                            targetPatient={{ id: "HB001", name: "Ramehs Singh", dob: "1985-03-15", abha_number: currentPatient.abha_number }} // Mock target for display
+                            targetPatient={matchResult.targetPatient}
                             matchData={matchResult}
                             onHistoryClick={handleHistoryClick}
                         />

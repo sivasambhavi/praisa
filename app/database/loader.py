@@ -248,26 +248,31 @@ def load_all_data():
 
     print("Starting data load...")
 
-    # Step 2: Load patient data from both hospitals
-    # Hospital A patients
-    p_a = load_patients_from_csv("data/hospital_a_patients.csv", "hospital_a")
-    # Hospital B patients
-    p_b = load_patients_from_csv("data/hospital_b_patients.csv", "hospital_b")
+    # Step 2 & 3: Dynamically load all hospital data
+    import glob
+    
+    # Load all patients
+    patient_files = glob.glob("data/hospital_*_patients.csv")
+    total_patients = 0
+    for p_file in patient_files:
+        # Extract hospital_id from filename (e.g., data/hospital_a_patients.csv -> hospital_a)
+        hospital_id = os.path.basename(p_file).replace("_patients.csv", "")
+        count = load_patients_from_csv(p_file, hospital_id)
+        total_patients += count
+        print(f"Loaded {count} patients for {hospital_id}")
 
-    # Step 3: Load visit data from both hospitals
-    # Hospital A visits
-    v_a = load_visits_from_csv("data/hospital_a_visits.csv")
-    # Hospital B visits
-    v_b = load_visits_from_csv("data/hospital_b_visits.csv")
+    # Load all visits
+    visit_files = glob.glob("data/hospital_*_visits.csv")
+    total_visits = 0
+    for v_file in visit_files:
+        count = load_visits_from_csv(v_file)
+        total_visits += count
+        print(f"Loaded {count} visits from {os.path.basename(v_file)}")
 
     # Step 4: Display summary statistics
     print("\nData Load Summary:")
-    print(f"Hospital A Patients: {p_a}")
-    print(f"Hospital B Patients: {p_b}")
-    print(f"Hospital A Visits: {v_a}")
-    print(f"Hospital B Visits: {v_b}")
-    print(f"Total Patients: {p_a + p_b}")
-    print(f"Total Visits: {v_a + v_b}")
+    print(f"Total Patients: {total_patients}")
+    print(f"Total Visits: {total_visits}")
 
 
 # Script entry point

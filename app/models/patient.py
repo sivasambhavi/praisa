@@ -141,6 +141,9 @@ class MatchResult(BaseModel):
     )
     patient_a_id: str  # First patient identifier
     patient_b_id: str  # Second patient identifier
+    matched_fields: Optional[list[str]] = Field(
+        None, description="List of fields that the AI identified as matching"
+    )
     details: Dict[str, Any] = Field(
         ..., description="Detailed results from all matching strategies"  # Required
     )

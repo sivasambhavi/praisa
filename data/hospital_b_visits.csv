@@ -1,21 +1,73 @@
 visit_id,patient_id,admission_date,visit_type,diagnosis,doctor_name
-VB001,HB001,2025-12-25 20:00:00,Emergency,Chest Pain,Dr. Karan Johar
-VB002,HB001,2026-01-02 10:00:00,OPD,Cardiology Consultation,Dr. Karan Johar
-VB003,HB002,2025-12-15 11:30:00,OPD,Vision Problem,Dr. Sanjay Gupta
-VB004,HB002,2025-12-22 15:00:00,OPD,Ophthalmology Follow-up,Dr. Sanjay Gupta
-VB005,HB003,2025-11-28 09:00:00,OPD,Knee Pain,Dr. Arjun Kapur
-VB006,HB003,2025-12-12 10:30:00,OPD,Orthopedic Consultation,Dr. Arjun Kapur
-VB007,HB004,2025-11-10 14:00:00,OPD,Dermatitis,Dr. Sneha Ray
-VB008,HB004,2025-11-25 11:00:00,OPD,Skin Checkup,Dr. Sneha Ray
-VB009,HB005,2025-12-05 12:00:00,OPD,Flu Symptoms,Dr. Manoj Singh
-VB010,HB005,2025-12-10 09:30:00,OPD,General Medicine Follow-up,Dr. Manoj Singh
-VB011,HB006,2025-10-05 10:00:00,OPD,Routine Health Check,Dr. Anjali Mehta
-VB012,HB006,2025-10-06 14:30:00,OPD,Dental Checkup,Dr. Rajesh Kumar
-VB013,HB007,2025-11-11 11:15:00,OPD,Fever,Dr. Suresh Reddy
-VB014,HB007,2025-11-14 09:30:00,OPD,Follow-up Fever,Dr. Suresh Reddy
-VB015,HB008,2025-12-01 16:00:00,Emergency,Food Poisoning,Dr. Meera Iyer
-VB016,HB008,2025-12-03 10:00:00,OPD,Recovery Check,Dr. Meera Iyer
-VB017,HB009,2025-09-30 13:30:00,OPD,Thyroid Check,Dr. Vikram Singh
-VB018,HB009,2025-10-28 15:00:00,OPD,Endocrinology Follow-up,Dr. Vikram Singh
-VB019,HB010,2025-11-22 10:45:00,OPD,Sprain,Dr. Amit Patel
-VB020,HB010,2025-12-05 11:30:00,OPD,Physiotherapy,Dr. Amit Patel
+VB001-1,HB001,2025-12-29,Emergency,Fracture,Dr. Smith
+VB001-2,HB001,2025-10-26,Emergency,Fever,Dr. Strange
+VB001-3,HB001,2025-05-05,OPD,Cough,Dr. Strange
+VB001-4,HB001,2025-02-08,Emergency,Cough,Dr. Who
+VB001-5,HB001,2025-07-24,Emergency,Cold,Dr. Smith
+VB002-1,HB002,2025-08-12,IPD,Fracture,Dr. Jones
+VB002-2,HB002,2025-05-22,OPD,Typhoid,Dr. Smith
+VB002-3,HB002,2025-08-24,Emergency,Diabetes,Dr. Smith
+VB002-4,HB002,2025-04-09,Emergency,Fracture,Dr. Smith
+VB003-1,HB003,2026-01-02,Emergency,Headache,Dr. Smith
+VB003-2,HB003,2025-07-31,Emergency,Typhoid,Dr. House
+VB003-3,HB003,2025-12-21,Emergency,Fracture,Dr. Smith
+VB003-4,HB003,2025-10-24,OPD,Cough,Dr. Who
+VB003-5,HB003,2025-01-04,Emergency,Diabetes,Dr. Smith
+VB004-1,HB004,2025-03-23,OPD,Cold,Dr. Smith
+VB005-1,HB005,2025-12-30,IPD,Headache,Dr. House
+VB005-2,HB005,2025-07-11,Emergency,Fever,Dr. Who
+VB006-1,HB006,2025-07-19,OPD,Diabetes,Dr. Who
+VB006-2,HB006,2025-07-11,OPD,Cold,Dr. Who
+VB007-1,HB007,2025-03-09,IPD,Malaria,Dr. Strange
+VB007-2,HB007,2025-11-19,Emergency,Dengue,Dr. House
+VB008-1,HB008,2025-03-08,OPD,Dengue,Dr. Smith
+VB008-2,HB008,2025-05-24,Emergency,Stomach Ache,Dr. Who
+VB008-3,HB008,2025-04-24,Emergency,Dengue,Dr. Jones
+VB008-4,HB008,2025-01-15,Emergency,Fever,Dr. Strange
+VB008-5,HB008,2025-12-20,Emergency,Malaria,Dr. Jones
+VB009-1,HB009,2025-12-02,Emergency,Fever,Dr. Smith
+VB010-1,HB010,2025-12-24,OPD,Diabetes,Dr. Strange
+VB010-2,HB010,2025-01-29,IPD,Diabetes,Dr. Strange
+VB010-3,HB010,2025-07-23,Emergency,Diabetes,Dr. House
+VB010-4,HB010,2025-05-03,OPD,Fever,Dr. Smith
+VB011-1,HB011,2025-08-24,IPD,Fracture,Dr. Who
+VB011-2,HB011,2025-08-24,IPD,Headache,Dr. Who
+VB011-3,HB011,2025-02-23,Emergency,Dengue,Dr. Smith
+VB012-1,HB012,2025-02-19,IPD,Stomach Ache,Dr. Strange
+VB012-2,HB012,2025-08-18,OPD,Malaria,Dr. House
+VB012-3,HB012,2025-09-02,OPD,Cough,Dr. Strange
+VB012-4,HB012,2026-01-02,OPD,Diabetes,Dr. Jones
+VB013-1,HB013,2025-08-15,IPD,Fracture,Dr. Smith
+VB013-2,HB013,2025-02-14,IPD,Malaria,Dr. Strange
+VB014-1,HB014,2025-01-21,IPD,Stomach Ache,Dr. House
+VB014-2,HB014,2025-05-03,Emergency,Stomach Ache,Dr. House
+VB014-3,HB014,2025-03-24,IPD,Malaria,Dr. Strange
+VB014-4,HB014,2025-10-20,Emergency,Cough,Dr. House
+VB014-5,HB014,2025-06-25,OPD,Stomach Ache,Dr. Who
+VB015-1,HB015,2025-09-09,OPD,Dengue,Dr. Who
+VB015-2,HB015,2025-03-17,OPD,Headache,Dr. Strange
+VB015-3,HB015,2025-05-09,OPD,Diabetes,Dr. Smith
+VB015-4,HB015,2025-01-27,IPD,Typhoid,Dr. Jones
+VB016-1,HB016,2025-08-06,OPD,Stomach Ache,Dr. Jones
+VB016-2,HB016,2025-02-09,Emergency,Typhoid,Dr. Strange
+VB016-3,HB016,2025-10-03,OPD,Cold,Dr. Strange
+VB016-4,HB016,2025-10-18,IPD,Cough,Dr. Who
+VB016-5,HB016,2025-06-26,IPD,Fracture,Dr. Jones
+VB017-1,HB017,2025-02-01,Emergency,Diabetes,Dr. Who
+VB017-2,HB017,2025-03-23,OPD,Headache,Dr. Smith
+VB017-3,HB017,2026-01-03,Emergency,Stomach Ache,Dr. Smith
+VB017-4,HB017,2025-05-22,IPD,Malaria,Dr. Jones
+VB017-5,HB017,2025-03-27,IPD,Stomach Ache,Dr. Jones
+VB018-1,HB018,2025-04-24,IPD,Cough,Dr. Jones
+VB018-2,HB018,2025-12-04,OPD,Dengue,Dr. Strange
+VB018-3,HB018,2025-10-19,IPD,Malaria,Dr. Jones
+VB018-4,HB018,2025-07-10,Emergency,Headache,Dr. Jones
+VB018-5,HB018,2025-09-19,Emergency,Headache,Dr. Jones
+VB019-1,HB019,2025-01-11,OPD,Cough,Dr. Smith
+VB019-2,HB019,2025-09-07,Emergency,Stomach Ache,Dr. Who
+VB019-3,HB019,2025-03-01,IPD,Cough,Dr. Smith
+VB019-4,HB019,2025-11-30,Emergency,Stomach Ache,Dr. House
+VB020-1,HB020,2025-07-23,OPD,Cold,Dr. Smith
+VB020-2,HB020,2025-09-07,OPD,Stomach Ache,Dr. Who
+VB020-3,HB020,2025-06-11,Emergency,Headache,Dr. Smith
+VB020-4,HB020,2025-09-03,OPD,Fever,Dr. Who
