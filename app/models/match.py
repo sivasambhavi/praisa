@@ -2,9 +2,11 @@ from pydantic import BaseModel
 from typing import Optional, List
 from app.models.patient import Patient
 
+
 class MatchRequest(BaseModel):
     source_patient_id: str
     target_hospital_id: str
+
 
 class MatchResult(BaseModel):
     source_patient: Patient
