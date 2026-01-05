@@ -58,6 +58,10 @@ class PatientModel(BaseModel):
     abha_number: Optional[str] = None  # Government health ID
     address: Optional[str] = None  # Residential address
     state: Optional[str] = None  # State/province
+    
+    # Data Quality Fields
+    quality_score: Optional[int] = Field(None, description="Data completeness score (0-100)")
+    missing_fields: Optional[list[str]] = Field(None, description="List of missing critical fields")
 
 
 class MatchRequest(BaseModel):

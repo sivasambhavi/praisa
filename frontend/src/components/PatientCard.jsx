@@ -18,10 +18,10 @@ const PatientCard = ({ patient, onMatchClick, onHistoryClick }) => {
     const formatDate = (dateStr) => {
         if (!dateStr) return 'N/A';
         const date = new Date(dateStr);
-        return date.toLocaleDateString('en-IN', { 
-            year: 'numeric', 
-            month: 'short', 
-            day: 'numeric' 
+        return date.toLocaleDateString('en-IN', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
         });
     };
 
@@ -42,7 +42,7 @@ const PatientCard = ({ patient, onMatchClick, onHistoryClick }) => {
         <div className="glass-card p-6 animate-scale-in group">
             {/* Gradient Border Accent */}
             <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-cyan-500 via-blue-500 to-purple-500 rounded-l-xl"></div>
-            
+
             <div className="flex items-start gap-4">
                 {/* Avatar */}
                 <div className={`w-16 h-16 rounded-full bg-gradient-to-br ${getHospitalColor(patient.hospital_id)} flex items-center justify-center text-white text-xl font-bold shadow-lg flex-shrink-0`}>
@@ -67,7 +67,7 @@ const PatientCard = ({ patient, onMatchClick, onHistoryClick }) => {
                         <div className="flex items-center gap-2 text-sm">
                             <span className="text-white/60">🆔</span>
                             <div>
-                                <p className="text-white/60 text-xs">Patient ID</p>
+                                <p className="text-white/80 text-xs">Patient ID</p>
                                 <p className="text-white font-semibold">{patient.id || patient.patient_id || 'N/A'}</p>
                             </div>
                         </div>
@@ -76,7 +76,7 @@ const PatientCard = ({ patient, onMatchClick, onHistoryClick }) => {
                         <div className="flex items-center gap-2 text-sm">
                             <span className="text-white/60">🎂</span>
                             <div>
-                                <p className="text-white/60 text-xs">Date of Birth</p>
+                                <p className="text-white/80 text-xs">Date of Birth</p>
                                 <p className="text-white font-semibold">{formatDate(patient.dob)}</p>
                             </div>
                         </div>
@@ -85,7 +85,7 @@ const PatientCard = ({ patient, onMatchClick, onHistoryClick }) => {
                         <div className="flex items-center gap-2 text-sm">
                             <span className="text-white/60">{patient.gender === 'M' ? '👨' : patient.gender === 'F' ? '👩' : '👤'}</span>
                             <div>
-                                <p className="text-white/60 text-xs">Gender</p>
+                                <p className="text-white/80 text-xs">Gender</p>
                                 <p className="text-white font-semibold">
                                     {patient.gender === 'M' ? 'Male' : patient.gender === 'F' ? 'Female' : 'Other'}
                                 </p>
@@ -96,7 +96,7 @@ const PatientCard = ({ patient, onMatchClick, onHistoryClick }) => {
                         <div className="flex items-center gap-2 text-sm">
                             <span className="text-white/60">📱</span>
                             <div>
-                                <p className="text-white/60 text-xs">Phone</p>
+                                <p className="text-white/80 text-xs">Phone</p>
                                 <p className="text-white font-semibold">{patient.mobile || 'N/A'}</p>
                             </div>
                         </div>
@@ -104,8 +104,8 @@ const PatientCard = ({ patient, onMatchClick, onHistoryClick }) => {
 
                     {/* ABHA Number */}
                     {patient.abha_number && (
-                        <div className="mb-4 p-3 bg-white/10 rounded-lg border border-white/20">
-                            <p className="text-white/60 text-xs mb-1">ABHA Health ID</p>
+                        <div className="mb-4 p-3 bg-white/15 rounded-lg border border-white/30">
+                            <p className="text-white/80 text-xs mb-1">ABHA Health ID</p>
                             <p className="text-white font-mono font-semibold text-sm">{patient.abha_number}</p>
                         </div>
                     )}
@@ -113,8 +113,8 @@ const PatientCard = ({ patient, onMatchClick, onHistoryClick }) => {
                     {/* Address */}
                     {patient.address && (
                         <div className="mb-4 text-sm">
-                            <p className="text-white/60 text-xs mb-1">📍 Address</p>
-                            <p className="text-white/90">{patient.address}</p>
+                            <p className="text-white/80 text-xs mb-1">📍 Address</p>
+                            <p className="text-white">{patient.address}</p>
                         </div>
                     )}
 
@@ -131,7 +131,7 @@ const PatientCard = ({ patient, onMatchClick, onHistoryClick }) => {
                         </button>
                         <button
                             onClick={() => onHistoryClick(patient)}
-                            className="flex-1 bg-white/20 text-white px-4 py-2.5 rounded-lg font-semibold hover:bg-white/30 transition-all flex items-center justify-center gap-2 border border-white/30"
+                            className="flex-1 bg-white/25 text-white px-4 py-2.5 rounded-lg font-semibold hover:bg-white/35 transition-all flex items-center justify-center gap-2 border border-white/40"
                         >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>

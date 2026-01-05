@@ -15,6 +15,7 @@ Date: 2026-01-04
 
 from fastapi import APIRouter, HTTPException, Query
 from app.database import db
+from app.utils.quality_scorer import calculate_data_quality
 
 # Create API router for patient endpoints
 # This router will be included in main.py with prefix "/api"
@@ -25,25 +26,28 @@ router = APIRouter()
 async def search_patients(
     name: str = Query(None, min_length=2),  # Name search (min 2 chars)
     abha: str = Query(None, min_length=5),  # ABHA search (min 5 chars for flexibility)
+    aadhaar: str = Query(None, min_length=12), # Aadhaar search (min 12 chars)
     phone: str = Query(None, min_length=10),  # Phone search (min 10 digits)
     hospital_id: str = Query(None), # Optional hospital filter
 ):
     """
-    Search for patients by name, ABHA, or phone number.
+    Search for patients by name, ABHA, Aadhaar, or phone number.
 
-    CROSS-HOSPITAL SEARCH: When searching by ABHA or phone, automatically searches
+    CROSS-HOSPITAL SEARCH: When searching by ABHA, Aadhaar, or phone, automatically searches
     across ALL hospitals and returns exact matches, enabling cross-hospital patient identification.
 
-    Supports three search modes:
+    Supports four search modes:
     1. Name search: Partial, case-insensitive match (e.g., "Ram" matches "Ramesh")
     2. ABHA search: Exact match on government health ID (CROSS-HOSPITAL)
-    3. Phone search: Exact match on mobile number (CROSS-HOSPITAL)
+    3. Aadhaar search: Exact match on UIDAI ID (CROSS-HOSPITAL)
+    4. Phone search: Exact match on mobile number (CROSS-HOSPITAL)
 
     At least one parameter must be provided.
 
     Query Parameters:
         name: Patient name (partial match, min 2 characters)
         abha: ABHA number (exact match across ALL hospitals, min 5 characters)
+        aadhaar: Aadhaar number (exact match across ALL hospitals, min 12 digits)
         phone: Phone/mobile number (exact match across ALL hospitals, min 10 digits)
         hospital_id: Optional hospital filter (only applies to name search)
 
@@ -51,7 +55,7 @@ async def search_patients(
         {
             "results": [...],  # List of matching patients
             "count": int,      # Number of results
-            "search_type": str # "abha", "phone", or "name"
+            "search_type": str # "abha", "aadhaar", "phone", or "name"
         }
 
     Raises:
@@ -59,23 +63,30 @@ async def search_patients(
 
     Examples:
         GET /api/patients/search?name=Ramesh&hospital_id=hospital_a
-        GET /api/patients/search?abha=12-3456-7890-1234  (searches ALL hospitals)
-        GET /api/patients/search?phone=9876543210  (searches ALL hospitals)
+        GET /api/patients/search?abha=12-3456-7890-1234
+        GET /api/patients/search?aadhaar=123412341234
+        GET /api/patients/search?phone=9876543210
     """
     # Validate that at least one search parameter is provided
-    if not name and not abha and not phone:
+    if not name and not abha and not phone and not aadhaar:
         raise HTTPException(
             status_code=400, 
-            detail="Provide 'name', 'abha', or 'phone' query parameter"
+            detail="Provide 'name', 'abha', 'aadhaar', or 'phone' query parameter"
         )
 
-    # Priority: ABHA > Phone > Name (most specific to least specific)
+    # Priority: ABHA > Aadhaar > Phone > Name (most specific to least specific)
     search_type = "name"
     
     if abha:
         # ABHA match - highest priority, searches ALL hospitals automatically
         search_type = "abha"
         patients = db.search_patients(abha=abha, hospital_id=None)  # Force cross-hospital
+    elif aadhaar:
+        # Aadhaar match - searches ALL hospitals automatically
+        search_type = "aadhaar"
+        # Clean aadhaar (remove spaces, dashes)
+        clean_aadhaar = aadhaar.replace("-", "").replace(" ", "").strip()
+        patients = db.search_patients(aadhaar=clean_aadhaar, hospital_id=None)
     elif phone:
         # Phone match - search ALL hospitals automatically
         search_type = "phone"
@@ -86,6 +97,12 @@ async def search_patients(
         # Name search - respects hospital filter
         search_type = "name"
         patients = db.search_patients(name=name, hospital_id=hospital_id)
+
+    # Calculate data quality for each result
+    for p in patients:
+        score, missing = calculate_data_quality(p)
+        p["quality_score"] = score
+        p["missing_fields"] = missing
 
     # Return results with search type indicator
     return {
@@ -137,6 +154,11 @@ async def get_patient_details(patient_id: str):
     # Return 404 if patient not found
     if not patient:
         raise HTTPException(status_code=404, detail=f"Patient {patient_id} not found")
+
+    # Calculate data quality
+    score, missing = calculate_data_quality(patient)
+    patient["quality_score"] = score
+    patient["missing_fields"] = missing
 
     # Return patient data
     return patient

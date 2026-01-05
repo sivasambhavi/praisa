@@ -12,6 +12,7 @@ Author: Mid Engineer
 Date: 2026-01-04
 """
 
+import os
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 from contextlib import contextmanager
@@ -20,7 +21,9 @@ from rapidfuzz import process, fuzz
 # Database Configuration
 # Using SQLite for POC demo - file-based database
 # For production, this will be PostgreSQL connection string
-DATABASE_URL = "sqlite:///praisa_demo.db"
+# Use absolute path to avoid issues with CWD
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+DATABASE_URL = f"sqlite:///{os.path.join(BASE_DIR, 'praisa_demo.db')}"
 
 # Create SQLAlchemy engine
 # check_same_thread=False is required for SQLite to work with FastAPI
@@ -89,53 +92,90 @@ def get_patient(patient_id: str):
         return None
 
 
-def search_patients(name: str = None, abha: str = None, phone: str = None, hospital_id: str = None):
+def search_patients(name: str = None, abha: str = None, aadhaar: str = None, phone: str = None, hospital_id: str = None):
     """
-    Search patients by name (partial match) or ABHA number (exact match).
-
-    Supports two search modes:
-    1. By ABHA number: Exact match on government health ID
-    2. By name: Case-insensitive partial match (LIKE query)
-
-    Args:
-        name: Patient name to search (partial match, case-insensitive)
-        abha: ABHA number to search (exact match)
-
-    Returns:
-        list[dict]: List of matching patient records (max 10 for name search)
-
-    Examples:
-        >>> search_patients(name="Ramesh")
-        [{'patient_id': 'HA001', 'name': 'Ramesh Singh', ...}]
-
-        >>> search_patients(abha="12-3456-7890-1234")
-        [{'patient_id': 'HA001', ...}, {'patient_id': 'HB001', ...}]
+    Search patients by name, ABHA (exact), Aadhaar (exact), or phone (exact).
     """
+    print(f"[DEBUG] search_patients called with: name={name}, abha={abha}, aadhaar={aadhaar}, phone={phone}, hosp={hospital_id}")
     with get_db() as db:
+        results = []
+
+        # Priority 1: ABHA (Government ID) - Exact Match
         if abha:
-            # ABHA search: Exact match (PRIORITY 1 - most specific)
-            sql = "SELECT * FROM patients WHERE abha_number = :abha"
-            params = {"abha": abha}
+            # Clean input
+            clean_abha = abha.replace("-", "").replace(" ", "").strip()
+            
+            # OPTIMIZATION: Try exact match first (Uses Index = Fast)
+            sql_fast = "SELECT * FROM patients WHERE abha_number = :val"
+            params = {"val": clean_abha} # Try cleaned version first
             
             if hospital_id:
-                sql += " AND hospital_id = :hosp"
+                sql_fast += " AND hospital_id = :hosp"
                 params["hosp"] = hospital_id
                 
-            query = text(sql)
-            results = db.execute(query, params).mappings().all()
-        
+            query_fast = text(sql_fast)
+            results = db.execute(query_fast, params).mappings().all()
+            
+            # If no results, try formatted search (or if input had dashes)
+            # This handles cases where DB has dashes "12-34" but user searched "1234"
+            if not results:
+                # Fallback to REPLACEd query (Full Scan)
+                sql = "SELECT * FROM patients WHERE REPLACE(REPLACE(abha_number, '-', ''), ' ', '') = :val"
+                if hospital_id:
+                    sql += " AND hospital_id = :hosp"
+                results = db.execute(text(sql), params).mappings().all()
+
+        # Priority 2: Aadhaar (Government ID) - Exact Match
+        elif aadhaar:
+            # Clean input
+            clean_aadhaar = aadhaar.replace("-", "").replace(" ", "").strip()
+            
+            # OPTIMIZATION: Try exact match first (Uses Index = Fast)
+            sql_fast = "SELECT * FROM patients WHERE aadhaar_number = :val"
+            params = {"val": clean_aadhaar}
+            
+            if hospital_id:
+                sql_fast += " AND hospital_id = :hosp"
+                params["hosp"] = hospital_id
+                
+            results = db.execute(text(sql_fast), params).mappings().all()
+            
+            if not results:
+                # Fallback (though Aadhaar is usually clean)
+                sql = "SELECT * FROM patients WHERE REPLACE(REPLACE(aadhaar_number, '-', ''), ' ', '') = :val"
+                if hospital_id:
+                    sql += " AND hospital_id = :hosp"
+                results = db.execute(text(sql), params).mappings().all()
+            
+        # Priority 3: Phone - Exact Match
         elif phone:
-            # Phone search: Flexible match on last 10 digits (PRIORITY 2)
             # Clean the search phone (remove common prefixes and separators)
             clean_phone = phone.replace("+91", "").replace("-", "").replace(" ", "").strip()
+            # Try last 10 digits as exact match
             last_10 = clean_phone[-10:] if len(clean_phone) >= 10 else clean_phone
             
-            # Search using LIKE on mobile field (matches if last 10 digits match)
-            sql = "SELECT * FROM patients WHERE mobile LIKE :phone"
-            params = {"phone": f"%{last_10}"}
+            # OPTIMIZATION: Try exact match first
+            sql_fast = "SELECT * FROM patients WHERE mobile = :val"
+            params = {"val": last_10}
             
-            query = text(sql)
-            results = db.execute(query, params).mappings().all()
+            if hospital_id:
+                sql_fast += " AND hospital_id = :hosp"
+                params["hosp"] = hospital_id
+                
+            results = db.execute(text(sql_fast), params).mappings().all()
+            
+            if not results:
+                # Fallback to flexible search
+                # Phone search: Flexible match on last 10 digits (PRIORITY 2)
+                sql = """
+                    SELECT * FROM patients 
+                    WHERE SUBSTR(REPLACE(REPLACE(REPLACE(mobile, '+91', ''), '-', ''), ' ', ''), -10) = :p_phone
+                """
+                params = {"p_phone": last_10}
+                if hospital_id:
+                    sql += " AND hospital_id = :hosp"
+                    params["hosp"] = hospital_id
+                results = db.execute(text(sql), params).mappings().all()
 
         elif name:
             # 1. Exact/Partial Match (Standard SQL)
@@ -186,8 +226,8 @@ def search_patients(name: str = None, abha: str = None, phone: str = None, hospi
             # No search criteria provided
             return []
 
-        # Convert all results to regular dicts (already dicts)
-        return results
+        # Convert all results to regular mutable dicts to allow adding fields later
+        return [dict(row) for row in results]
 
 
 def get_patient_visits(patient_id: str):

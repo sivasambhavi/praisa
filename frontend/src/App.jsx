@@ -122,9 +122,11 @@ function App() {
 
             // Fetch target patient history if we have a match target
             let visitsB = [];
-            if (targetPatientId) {
+            if (targetPatientId && matchResult?.targetPatient) {
                 try {
-                    const targetHosp = targetPatientId.substring(1, 2);
+                    const targetHosp = matchResult.targetPatient.hospital_id 
+                        ? matchResult.targetPatient.hospital_id.split('_')[1].toUpperCase() 
+                        : 'B'; // Fallback
                     visitsB = await getPatientHistory(targetPatientId, targetHosp);
                 } catch (e) {
                     console.warn("Could not fetch target history", e);

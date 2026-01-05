@@ -23,8 +23,8 @@ const AdvancedSearch = ({ onSearch, isLoading }) => {
 
         switch (type) {
             case 'abha':
-                if (value.length < 14) {
-                    setError('ABHA number must be at least 14 characters');
+                if (value.replace(/[^0-9]/g, '').length < 10) {
+                    setError('ABHA number must be at least 10 digits');
                     return false;
                 }
                 break;
@@ -95,8 +95,8 @@ const AdvancedSearch = ({ onSearch, isLoading }) => {
                             type="button"
                             onClick={() => handleSearchTypeChange(type.id)}
                             className={`flex-1 min-w-[140px] px-4 py-2.5 rounded-lg font-medium text-sm transition-all duration-200 flex items-center justify-center ${searchType === type.id
-                                    ? 'bg-gradient-to-r from-cyan-400 to-cyan-500 text-white shadow-lg'
-                                    : 'bg-purple-500/50 text-white/90 hover:bg-purple-500/70'
+                                ? 'bg-gradient-to-r from-cyan-400 to-cyan-500 text-white shadow-lg'
+                                : 'bg-purple-500/50 text-white/90 hover:bg-purple-500/70'
                                 }`}
                         >
                             <span>{type.label}</span>

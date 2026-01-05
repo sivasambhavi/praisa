@@ -19,7 +19,8 @@ import sqlite3  # SQLite database operations
 import os  # File system operations
 
 # Database file path (relative to project root)
-DB_PATH = "praisa_demo.db"
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+DB_PATH = os.path.join(BASE_DIR, "praisa_demo.db")
 
 
 def get_db_connection():
@@ -88,9 +89,9 @@ def load_patients_from_csv(csv_path, hospital_id):
                 """
                 INSERT INTO patients (
                     patient_id, hospital_id, name, dob, mobile,
-                    gender, abha_number, address, state
+                    gender, abha_number, aadhaar_number, address, state
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     row["patient_id"],  # Unique patient ID (e.g., "HA001")
@@ -100,6 +101,7 @@ def load_patients_from_csv(csv_path, hospital_id):
                     row["mobile"],  # Mobile number
                     row["gender"],  # Gender (M/F)
                     row["abha_number"],  # ABHA health ID
+                    row.get("aadhaar_number", None), # Aadhaar number (handled if missing in old CSVs)
                     row["address"],  # Full address
                     row["state"],  # State name
                 ),
@@ -217,7 +219,7 @@ def init_db():
 
         # Read and execute SQL schema file
         # Schema creates tables, indexes, and constraints
-        with open("app/database/schema.sql", "r") as f:
+        with open(os.path.join(BASE_DIR, "app", "database", "schema.sql"), "r") as f:
             schema = f.read()
             cursor.executescript(schema)  # Execute all SQL statements
 
@@ -252,7 +254,7 @@ def load_all_data():
     import glob
     
     # Load all patients
-    patient_files = glob.glob("data/hospital_*_patients.csv")
+    patient_files = glob.glob(os.path.join(BASE_DIR, "data", "hospital_*_patients.csv"))
     total_patients = 0
     for p_file in patient_files:
         # Extract hospital_id from filename (e.g., data/hospital_a_patients.csv -> hospital_a)
@@ -262,7 +264,7 @@ def load_all_data():
         print(f"Loaded {count} patients for {hospital_id}")
 
     # Load all visits
-    visit_files = glob.glob("data/hospital_*_visits.csv")
+    visit_files = glob.glob(os.path.join(BASE_DIR, "data", "hospital_*_visits.csv"))
     total_visits = 0
     for v_file in visit_files:
         count = load_visits_from_csv(v_file)
