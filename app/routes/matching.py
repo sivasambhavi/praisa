@@ -8,7 +8,6 @@ Endpoint: POST /api/match
 Purpose: Match two patient records using combined strategies
 """
 
-
 from fastapi import APIRouter, HTTPException
 from app.models.patient import MatchRequest, MatchResult
 from app.matching.simple_matcher import match_patients

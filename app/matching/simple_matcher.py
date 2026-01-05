@@ -15,7 +15,6 @@ This approach ensures we use the most reliable matching method available.
 
 """
 
-
 from app.matching.ml_matcher import MLPatientMatcher
 
 # Initialize the global ML matcher (loads weights from disk if available)
