@@ -33,11 +33,17 @@ const transformVisit = (data, hospitalLabel) => {
 };
 
 // API Methods
+<<<<<<< HEAD
 export const searchPatients = async (criteria) => {
     try {
         // Handle multiple input formats:
         // 1. { name: "...", hospital: "..." } (from App.jsx cross-hospital matching)
         // 2. { type: "name"|"abha"|"phone"|"aadhar", value: "...", hospital: "..." } (from AdvancedSearch)
+=======
+export const searchPatients = async ({ type = 'name', value, hospital }) => {
+    try {
+        console.log(`Searching for ${value} (type: ${type}) in ${hospital}`);
+>>>>>>> 38769de8184de3ce0d956291ae1d59443dea845b
 
         const searchType = criteria.type || 'name';
         const searchValue = criteria.value || criteria.name;
@@ -48,6 +54,7 @@ export const searchPatients = async (criteria) => {
         // Prepare hospital_id for backend
         const hospital_id = hospital ? `hospital_${hospital.toLowerCase()}` : undefined;
 
+<<<<<<< HEAD
         // Build API parameters based on search type
         let params = {};
 
@@ -73,6 +80,30 @@ export const searchPatients = async (criteria) => {
         const response = await client.get('/api/patients/search', { params });
 
         console.log(`[Frontend] Response: ${response.data.count} results`);
+=======
+        // Map search type to appropriate query parameter
+        const params = { hospital_id };
+        
+        switch (type) {
+            case 'name':
+                params.name = value;
+                break;
+            case 'abha':
+                params.abha = value;
+                break;
+            case 'aadhar':
+                params.aadhar = value;
+                break;
+            case 'phone':
+                params.phone = value;
+                break;
+            default:
+                params.name = value;
+        }
+
+        // Endpoint: GET /api/patients/search with appropriate params
+        const response = await client.get('/api/patients/search', { params });
+>>>>>>> 38769de8184de3ce0d956291ae1d59443dea845b
 
         const patients = response.data.results || [];
         return patients.map(transformPatient);
