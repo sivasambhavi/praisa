@@ -1,10 +1,12 @@
 {
-    "Fuzzy Ratio": 0.3,
-    "Token Sort Ratio": 0.2,
+    "Fuzzy Ratio": 0.15,
+    "Token Sort Ratio": 0.1,
     "Phonetic Match": 1.5,
     "Indian Typo Pattern": 0.5,
-    "ABHA Match": 5.0,
-    "Mobile Match": 3.0,
-    "Gender Match": 0.5,
-    "DOB Match": 1.0
+    "ABHA Match": 10.0,
+    "Mobile Match": 4.0,
+    "Gender Match": 0.8,
+    "DOB Match": 2.0,
+    "First Name Match": 2.5,
+    "Last Name Match": 2.5
 }

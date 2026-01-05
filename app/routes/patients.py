@@ -24,47 +24,75 @@ router = APIRouter()
 @router.get("/patients/search")
 async def search_patients(
     name: str = Query(None, min_length=2),  # Name search (min 2 chars)
-    abha: str = Query(None, min_length=14),  # ABHA search (min 14 chars)
+    abha: str = Query(None, min_length=5),  # ABHA search (min 5 chars for flexibility)
+    phone: str = Query(None, min_length=10),  # Phone search (min 10 digits)
     hospital_id: str = Query(None), # Optional hospital filter
 ):
     """
-    Search for patients by name or ABHA number.
+    Search for patients by name, ABHA, or phone number.
 
-    Supports two search modes:
+    CROSS-HOSPITAL SEARCH: When searching by ABHA or phone, automatically searches
+    across ALL hospitals and returns exact matches, enabling cross-hospital patient identification.
+
+    Supports three search modes:
     1. Name search: Partial, case-insensitive match (e.g., "Ram" matches "Ramesh")
-    2. ABHA search: Exact match on government health ID
+    2. ABHA search: Exact match on government health ID (CROSS-HOSPITAL)
+    3. Phone search: Exact match on mobile number (CROSS-HOSPITAL)
 
     At least one parameter must be provided.
 
     Query Parameters:
         name: Patient name (partial match, min 2 characters)
-        abha: ABHA number (exact match, min 14 characters)
+        abha: ABHA number (exact match across ALL hospitals, min 5 characters)
+        phone: Phone/mobile number (exact match across ALL hospitals, min 10 digits)
+        hospital_id: Optional hospital filter (only applies to name search)
 
     Returns:
         {
             "results": [...],  # List of matching patients
-            "count": int       # Number of results
+            "count": int,      # Number of results
+            "search_type": str # "abha", "phone", or "name"
         }
 
     Raises:
-        HTTPException 400: If neither name nor abha is provided
+        HTTPException 400: If no search parameter is provided
 
     Examples:
-        GET /api/patients/search?name=Ramesh
-        GET /api/patients/search?abha=12-3456-7890-1234
+        GET /api/patients/search?name=Ramesh&hospital_id=hospital_a
+        GET /api/patients/search?abha=12-3456-7890-1234  (searches ALL hospitals)
+        GET /api/patients/search?phone=9876543210  (searches ALL hospitals)
     """
     # Validate that at least one search parameter is provided
-    if not name and not abha:
+    if not name and not abha and not phone:
         raise HTTPException(
-            status_code=400, detail="Provide either 'name' or 'abha' query parameter"
+            status_code=400, 
+            detail="Provide 'name', 'abha', or 'phone' query parameter"
         )
 
-    # Call database search function
-    # Returns list of patient dictionaries
-    patients = db.search_patients(name=name, abha=abha, hospital_id=hospital_id)
+    # Priority: ABHA > Phone > Name (most specific to least specific)
+    search_type = "name"
+    
+    if abha:
+        # ABHA match - highest priority, searches ALL hospitals automatically
+        search_type = "abha"
+        patients = db.search_patients(abha=abha, hospital_id=None)  # Force cross-hospital
+    elif phone:
+        # Phone match - search ALL hospitals automatically
+        search_type = "phone"
+        # Clean phone number (remove +91, spaces, dashes)
+        clean_phone = phone.replace("+91", "").replace("-", "").replace(" ", "").strip()
+        patients = db.search_patients(phone=clean_phone, hospital_id=None)  # Force cross-hospital
+    else:
+        # Name search - respects hospital filter
+        search_type = "name"
+        patients = db.search_patients(name=name, hospital_id=hospital_id)
 
-    # Return results with count
-    return {"results": patients, "count": len(patients)}
+    # Return results with search type indicator
+    return {
+        "results": patients, 
+        "count": len(patients),
+        "search_type": search_type
+    }
 
 
 @router.get("/patients/{patient_id}")

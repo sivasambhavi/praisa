@@ -15,7 +15,7 @@ const AdvancedSearch = ({ onSearch, isLoading }) => {
 
     const validateInput = (type, value) => {
         setError('');
-        
+
         if (!value.trim()) {
             setError('Please enter a search value');
             return false;
@@ -49,21 +49,21 @@ const AdvancedSearch = ({ onSearch, isLoading }) => {
                 }
                 break;
         }
-        
+
         return true;
     };
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        
+
         if (!validateInput(searchType, searchValue)) {
             return;
         }
 
-        onSearch({ 
-            type: searchType, 
+        onSearch({
+            type: searchType,
             value: searchValue.trim(),
-            hospital 
+            hospital
         });
     };
 
@@ -79,7 +79,7 @@ const AdvancedSearch = ({ onSearch, isLoading }) => {
         <div className="w-full max-w-4xl mx-auto px-4">
             {/* Glassmorphic Card */}
             <div className="bg-white/10 backdrop-blur-2xl rounded-3xl p-8 shadow-2xl border border-white/20">
-                
+
                 {/* Header */}
                 <div className="mb-6">
                     <h2 className="text-xl font-bold text-white">
@@ -94,11 +94,10 @@ const AdvancedSearch = ({ onSearch, isLoading }) => {
                             key={type.id}
                             type="button"
                             onClick={() => handleSearchTypeChange(type.id)}
-                            className={`flex-1 min-w-[140px] px-4 py-2.5 rounded-lg font-medium text-sm transition-all duration-200 flex items-center justify-center ${
-                                searchType === type.id
+                            className={`flex-1 min-w-[140px] px-4 py-2.5 rounded-lg font-medium text-sm transition-all duration-200 flex items-center justify-center ${searchType === type.id
                                     ? 'bg-gradient-to-r from-cyan-400 to-cyan-500 text-white shadow-lg'
                                     : 'bg-purple-500/50 text-white/90 hover:bg-purple-500/70'
-                            }`}
+                                }`}
                         >
                             <span>{type.label}</span>
                         </button>
@@ -150,6 +149,9 @@ const AdvancedSearch = ({ onSearch, isLoading }) => {
                                 >
                                     <option value="A">Hospital A (Apollo)</option>
                                     <option value="B">Hospital B (Max)</option>
+                                    <option value="C">Hospital C (Fortis)</option>
+                                    <option value="D">Hospital D (Manipal)</option>
+                                    <option value="E">Hospital E (AIIMS)</option>
                                 </select>
                                 <div className="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-gray-500">
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -164,9 +166,8 @@ const AdvancedSearch = ({ onSearch, isLoading }) => {
                     <button
                         type="submit"
                         disabled={isLoading}
-                        className={`w-full bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 text-white px-6 py-3.5 rounded-lg shadow-xl hover:shadow-2xl hover:-translate-y-0.5 transition-all duration-200 text-base font-bold flex items-center justify-center gap-2 ${
-                            isLoading ? 'opacity-75 cursor-not-allowed' : ''
-                        }`}
+                        className={`w-full bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 text-white px-6 py-3.5 rounded-lg shadow-xl hover:shadow-2xl hover:-translate-y-0.5 transition-all duration-200 text-base font-bold flex items-center justify-center gap-2 ${isLoading ? 'opacity-75 cursor-not-allowed' : ''
+                            }`}
                         style={{
                             boxShadow: '0 0 20px rgba(5, 150, 105, 0.4), 0 10px 25px rgba(0, 0, 0, 0.3)'
                         }}

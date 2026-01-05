@@ -89,7 +89,7 @@ def get_patient(patient_id: str):
         return None
 
 
-def search_patients(name: str = None, abha: str = None, hospital_id: str = None):
+def search_patients(name: str = None, abha: str = None, phone: str = None, hospital_id: str = None):
     """
     Search patients by name (partial match) or ABHA number (exact match).
 
@@ -113,7 +113,7 @@ def search_patients(name: str = None, abha: str = None, hospital_id: str = None)
     """
     with get_db() as db:
         if abha:
-            # ABHA search: Exact match
+            # ABHA search: Exact match (PRIORITY 1 - most specific)
             sql = "SELECT * FROM patients WHERE abha_number = :abha"
             params = {"abha": abha}
             
@@ -121,6 +121,19 @@ def search_patients(name: str = None, abha: str = None, hospital_id: str = None)
                 sql += " AND hospital_id = :hosp"
                 params["hosp"] = hospital_id
                 
+            query = text(sql)
+            results = db.execute(query, params).mappings().all()
+        
+        elif phone:
+            # Phone search: Flexible match on last 10 digits (PRIORITY 2)
+            # Clean the search phone (remove common prefixes and separators)
+            clean_phone = phone.replace("+91", "").replace("-", "").replace(" ", "").strip()
+            last_10 = clean_phone[-10:] if len(clean_phone) >= 10 else clean_phone
+            
+            # Search using LIKE on mobile field (matches if last 10 digits match)
+            sql = "SELECT * FROM patients WHERE mobile LIKE :phone"
+            params = {"phone": f"%{last_10}"}
+            
             query = text(sql)
             results = db.execute(query, params).mappings().all()
 

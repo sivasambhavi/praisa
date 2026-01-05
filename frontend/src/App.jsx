@@ -21,10 +21,10 @@ function App() {
         setLoading(true);
         setError(null);
         setSearchResults([]);
-        
+
         try {
             const results = await searchPatients(criteria);
-            
+
             if (results.length > 0) {
                 setSearchResults(results);
                 setStep('results');
@@ -48,7 +48,7 @@ function App() {
         setError(null);
 
         try {
-            // DYNAMIC CROSS-HOSPITAL MATCHING
+            // DYNAMIC CROSS-HOSPITAL MATCHING (All 5 Hospitals)
             // Find candidates in all hospitals EXCEPT the source hospital
             const HOSPITALS = ['A', 'B', 'C', 'D', 'E'];
             const sourceHosp = patient.hospital_id ? patient.hospital_id.split('_')[1].toUpperCase() : 'A';
@@ -110,7 +110,7 @@ function App() {
         if (!patient) {
             patient = currentPatient;
         }
-        
+
         setCurrentPatient(patient);
         setLoading(true);
         setError(null);
@@ -164,9 +164,9 @@ function App() {
                 {/* Header */}
                 <header className="mb-12 text-center animate-fade-in-down">
                     <div className="flex items-center justify-center gap-6 mb-4">
-                        <img 
-                            src="/praisa-logo.jpg" 
-                            alt="PRAISA Logo" 
+                        <img
+                            src="/praisa-logo.jpg"
+                            alt="PRAISA Logo"
                             className="w-24 h-24 md:w-32 md:h-32 object-contain drop-shadow-2xl"
                         />
                         <h1 className="text-6xl md:text-7xl font-extrabold tracking-tighter">
@@ -225,7 +225,7 @@ function App() {
                             onMatchClick={handleMatchClick}
                             onHistoryClick={handleHistoryClick}
                         />
-                        
+
                         <div className="mt-8 text-center">
                             <button
                                 onClick={handleNewSearch}

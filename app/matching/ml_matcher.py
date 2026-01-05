@@ -59,6 +59,21 @@ class MLPatientMatcher:
         # Indian Typo Pattern: High phonetic but slightly imperfect fuzzy
         is_pattern = 1.0 if (feats["Fuzzy Ratio"] < 0.95 and feats["Phonetic Match"] == 1.0) else 0.0
         feats["Indian Typo Pattern"] = is_pattern
+        
+        # CRITICAL FIX: Check first name AND last name separately
+        # Extract first names (first word before space)
+        first_name_a = name_a.split()[0] if name_a else ""
+        first_name_b = name_b.split()[0] if name_b else ""
+        first_name_similarity = fuzz.ratio(first_name_a, first_name_b) / 100.0
+        feats["First Name Match"] = first_name_similarity
+        
+        # Extract last names (last word, or second word if multi-part name)
+        parts_a = name_a.split()
+        parts_b = name_b.split()
+        last_name_a = parts_a[-1] if len(parts_a) > 1 else ""
+        last_name_b = parts_b[-1] if len(parts_b) > 1 else ""
+        last_name_similarity = fuzz.ratio(last_name_a, last_name_b) / 100.0 if last_name_a and last_name_b else 0.0
+        feats["Last Name Match"] = last_name_similarity
 
         # --- ID Features ---
         abha_a = patient_a.get("abha_number", "")
@@ -161,9 +176,30 @@ class MLPatientMatcher:
         if feats.get("Indian Typo Pattern") == 1.0:
              prob = max(prob, 0.92)
              
-        # 3. Demographic Penalties
+        # 3. Demographic Penalties - STRENGTHENED
+        # CRITICAL: Different gender = strong penalty (likely different people)
         if feats.get("Gender Match") == 0.0:
-            prob *= 0.3
+            prob *= 0.15  # Reduced from 0.3 - more aggressive penalty
+        
+        # CRITICAL: Different DOB = penalty (unless ABHA match confirms same person)
+        if feats.get("DOB Match") == 0.0 and feats.get("ABHA Match") == 0.0:
+            prob *= 0.6  # NEW: Penalize DOB mismatch
+        
+        # CRITICAL: First name mismatch = strong penalty
+        first_name_match = feats.get("First Name Match", 0.0)
+        if first_name_match < 0.6 and feats.get("ABHA Match") == 0.0:
+            prob *= 0.3  # Strong penalty for first name mismatch
+        
+        # CRITICAL: Last name mismatch = strong penalty (ADDED FIX)
+        last_name_match = feats.get("Last Name Match", 0.0)
+        if last_name_match < 0.6 and feats.get("ABHA Match") == 0.0:
+            prob *= 0.2  # STRONGER penalty for last name mismatch
+        
+        # CRITICAL VALIDATION: If BOTH ABHA and DOB are mismatched, force low score
+        # This prevents any name-only matches from getting through
+        if feats.get("ABHA Match") == 0.0 and feats.get("DOB Match") == 0.0:
+            # No identity confirmation - cap the score
+            prob = min(prob, 0.50)  # Max 50% without ABHA or DOB match
             
         # 4. Map features to PRD checklist names
         checklist_map = {
