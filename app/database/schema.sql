@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS patients (
     mobile TEXT,
     gender TEXT,
     abha_number TEXT,
+    aadhaar_number TEXT,
     address TEXT,
     state TEXT
 );
@@ -27,4 +28,5 @@ CREATE TABLE IF NOT EXISTS visits (
 -- Create indexes for faster lookups
 CREATE INDEX IF NOT EXISTS idx_patients_patient_id ON patients(patient_id);
 CREATE INDEX IF NOT EXISTS idx_patients_abha ON patients(abha_number);
+CREATE INDEX IF NOT EXISTS idx_patients_aadhaar ON patients(aadhaar_number);
 CREATE INDEX IF NOT EXISTS idx_visits_patient_id ON visits(patient_id);

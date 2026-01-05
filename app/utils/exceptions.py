@@ -3,9 +3,6 @@ Custom Exception Classes for PRAISA
 
 Defines domain-specific exceptions for better error handling and debugging.
 All custom exceptions inherit from base Exception class.
-
-Author: Senior Engineer
-Date: 2026-01-04
 """
 
 

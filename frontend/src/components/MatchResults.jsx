@@ -55,9 +55,23 @@ const MatchResults = ({ sourcePatient, targetPatient, matchData, onHistoryClick 
                             <span className="font-medium text-gray-700">{sourcePatient.dob}</span>
                         </div>
                     </div>
-                    <div className="mt-6 flex items-center gap-2 text-blue-700 bg-blue-100/50 p-2 rounded-lg">
-                        <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-                        <span className="text-xs font-semibold">Hospital A (Apollo)</span>
+                    <div className="mt-6 flex items-center justify-between">
+                        <div className="flex items-center gap-2 text-blue-700 bg-blue-100/50 p-2 rounded-lg">
+                            <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                            <span className="text-xs font-semibold">
+                                {sourcePatient.hospital_id ? sourcePatient.hospital_id.replace('hospital_', 'Hospital ').toUpperCase() : 'Hospital A'}
+                            </span>
+                        </div>
+
+                        {/* Data Quality Badge */}
+                        <div className="flex items-center gap-2" title={sourcePatient.missing_fields?.join(', ') || 'Complete Record'}>
+                            <div className={`px-3 py-1 rounded-lg text-xs font-bold border ${(sourcePatient.quality_score || 0) >= 80 ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+                                (sourcePatient.quality_score || 0) >= 60 ? 'bg-amber-50 text-amber-700 border-amber-200' :
+                                    'bg-red-50 text-red-700 border-red-200'
+                                }`}>
+                                Quality: {sourcePatient.quality_score || 0}/100
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -86,13 +100,47 @@ const MatchResults = ({ sourcePatient, targetPatient, matchData, onHistoryClick 
                             </defs>
                         </svg>
                         <div className="absolute inset-0 flex flex-col items-center justify-center">
-                            <span className="text-4xl font-black text-gray-800 tracking-tighter">{score}%</span>
+                            <span className="text-4xl font-black text-gray-800 tracking-tighter">{Math.round(score)}%</span>
                             <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Match Score</span>
                         </div>
                     </div>
-                    <div className="mt-4 text-center">
-                        <div className="text-sm font-bold text-gray-600 bg-white px-4 py-1 rounded-full shadow-sm border border-gray-100 inline-block">
-                            {matchData.method || "Phonetic Analysis"}
+                    <div className="mt-4 text-center space-y-3">
+                        <div className={`text-xs font-bold px-4 py-1.5 rounded-full shadow-sm border inline-block ${matchData.confidence === 'high' ? 'bg-green-50 text-green-700 border-green-200' :
+                            matchData.confidence === 'medium' ? 'bg-yellow-50 text-yellow-700 border-yellow-200' :
+                                'bg-gray-50 text-gray-700 border-gray-200'
+                            }`}>
+                            METHOD: {matchData.method || "Phonetic Analysis"}
+                        </div>
+
+                        <div className="flex flex-col items-center gap-2 mt-2">
+                            <div className={`px-4 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase border shadow-sm ${matchData.confidence === 'high' ? 'bg-green-100 text-green-800 border-green-200' :
+                                matchData.confidence === 'medium' ? 'bg-yellow-100 text-yellow-800 border-yellow-200' :
+                                    'bg-red-100 text-red-800 border-red-200'
+                                }`}>
+                                Confidence: {matchData.confidence || "LOW"}
+                            </div>
+
+                            <span className={`text-xl font-black ${matchData.recommendation === 'MATCH' ? 'text-green-600' : 'text-yellow-600'
+                                }`}>
+                                {matchData.recommendation || "REVIEW"}
+                            </span>
+                        </div>
+
+                        {/* Matched Fields Checklist (Junior PRD requirement) */}
+                        <div className="mt-6 text-left space-y-1.5 bg-white/50 p-4 rounded-xl border border-gray-100/50">
+                            {['ABHA Number', 'Date of Birth', 'Phone Number', 'Name (phonetic)'].map(field => {
+                                const isMatched = matchData.matched_fields?.includes(field);
+                                return (
+                                    <div key={field} className="flex items-center gap-3">
+                                        <div className={`w-5 h-5 rounded-full flex items-center justify-center transition-all ${isMatched ? 'bg-green-500 text-white scale-110' : 'bg-gray-100 text-gray-300'}`}>
+                                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
+                                        </div>
+                                        <span className={`text-xs font-bold transition-all ${isMatched ? 'text-gray-700' : 'text-gray-400 font-normal line-through opacity-40'}`}>
+                                            {field}
+                                        </span>
+                                    </div>
+                                );
+                            })}
                         </div>
                     </div>
                 </div>
@@ -104,9 +152,15 @@ const MatchResults = ({ sourcePatient, targetPatient, matchData, onHistoryClick 
                     </div>
                     <div className="text-xs font-bold text-green-600 uppercase tracking-widest mb-1">Target Record</div>
                     <div className="text-2xl font-bold text-gray-900 mb-4">
-                        {targetPatient.name.split('').map((char, i) => (
-                            sourcePatient.name[i] !== char ? <span key={i} className="text-red-500 bg-red-50">{char}</span> : char
-                        ))}
+                        {targetPatient.name.split('').map((char, i) => {
+                            const isDiff = sourcePatient.name.toLowerCase().indexOf(char.toLowerCase()) === -1 ||
+                                (sourcePatient.name[i] && sourcePatient.name[i].toLowerCase() !== char.toLowerCase());
+                            return isDiff ? (
+                                <span key={i} className="text-red-500 bg-red-50/50 ring-1 ring-red-100 px-0.5 rounded">
+                                    {char}
+                                </span>
+                            ) : char;
+                        })}
                     </div>
 
                     <div className="space-y-3">
@@ -123,25 +177,49 @@ const MatchResults = ({ sourcePatient, targetPatient, matchData, onHistoryClick 
                             <span className="font-medium text-gray-700">{targetPatient.dob}</span>
                         </div>
                     </div>
-                    <div className="mt-6 flex items-center gap-2 text-green-700 bg-green-100/50 p-2 rounded-lg">
-                        <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                        <span className="text-xs font-semibold">Hospital B (Max)</span>
+
+                    <div className="mt-6 flex items-center justify-between">
+                        <div className="flex items-center gap-2 text-green-700 bg-green-100/50 p-2 rounded-lg">
+                            <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                            <span className="text-xs font-semibold">
+                                {targetPatient.hospital_id ? targetPatient.hospital_id.replace('hospital_', 'Hospital ').toUpperCase() : 'Hospital B'}
+                            </span>
+                        </div>
+
+                        {/* Data Quality Badge */}
+                        <div className="flex items-center gap-2" title={targetPatient.missing_fields?.join(', ') || 'Complete Record'}>
+                            <div className={`px-3 py-1 rounded-lg text-xs font-bold border ${(targetPatient.quality_score || 0) >= 80 ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+                                (targetPatient.quality_score || 0) >= 60 ? 'bg-amber-50 text-amber-700 border-amber-200' :
+                                    'bg-red-50 text-red-700 border-red-200'
+                                }`}>
+                                Quality: {targetPatient.quality_score || 0}/100
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div className="mt-12 flex justify-center">
-                <button
-                    onClick={onHistoryClick}
-                    className="group relative bg-gray-900 text-white px-10 py-4 rounded-xl text-lg font-bold shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all overflow-hidden"
-                >
-                    <span className="relative z-10 flex items-center gap-3">
-                        View Unified Medical History
-                        <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                    </span>
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                </button>
-            </div>
+            {/* Only show Unified History for perfect matches */}
+            {Math.round(matchData.match_score) === 100 ? (
+                <div className="mt-12 flex justify-center">
+                    <button
+                        onClick={() => onHistoryClick()}
+                        className="group relative bg-gray-900 text-white px-10 py-4 rounded-xl text-lg font-bold shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all overflow-hidden"
+                    >
+                        <span className="relative z-10 flex items-center gap-3">
+                            View Unified Medical History
+                            <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                        </span>
+                        <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    </button>
+                </div>
+            ) : (
+                <div className="mt-12 flex justify-center opacity-50 cursor-not-allowed" title="Unified History is only available for 100% matches">
+                    <div className="bg-gray-100 text-gray-400 px-8 py-3 rounded-xl text-sm font-semibold border border-gray-200">
+                        Unified History Locked (Requires 100% Match)
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

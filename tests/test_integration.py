@@ -110,6 +110,5 @@ class TestEndToEndMatching:
         assert "details" in result
 
         # Verify details contain all strategy results
-        assert "abha_result" in result["details"]
-        assert "phonetic_result" in result["details"]
-        assert "fuzzy_result" in result["details"]
+        assert "ml_result" in result["details"]
+        assert result["details"]["is_ml_driven"] is True

@@ -6,9 +6,6 @@ ABHA is India's government-issued unique health identifier, similar to a Social 
 
 When both patients have ABHA numbers and they match exactly, it's a 100% certain match.
 This is the highest confidence matching strategy in PRAISA.
-
-Author: Senior Engineer
-Date: 2026-01-04
 """
 
 

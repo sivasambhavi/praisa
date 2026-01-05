@@ -33,27 +33,52 @@ const transformVisit = (data, hospitalLabel) => {
 };
 
 // API Methods
-export const searchPatients = async ({ name, hospital }) => {
+export const searchPatients = async (criteria) => {
     try {
-        console.log(`Searching for ${name} in ${hospital}`);
-        // Endpoint: GET /api/patients/search?name=...
-        const response = await client.get('/api/patients/search', {
-            params: { name }
-        });
+        // Handle multiple input formats:
+        // 1. { name: "...", hospital: "..." } (from App.jsx cross-hospital matching)
+        // 2. { type: "name"|"abha"|"phone"|"aadhar", value: "...", hospital: "..." } (from AdvancedSearch)
 
-        // Response format: { results: [...], count: ... }
+        const searchType = criteria.type || 'name';
+        const searchValue = criteria.value || criteria.name;
+        const hospital = criteria.hospital;
+
+        console.log(`[Frontend] Search type: ${searchType}, value: ${searchValue}, hospital: ${hospital || 'all'}`);
+
+        // Prepare hospital_id for backend
+        const hospital_id = hospital ? `hospital_${hospital.toLowerCase()}` : undefined;
+
+        // Build API parameters based on search type
+        let params = {};
+
+        if (searchType === 'abha') {
+            // ABHA search - searches ALL hospitals automatically
+            params = { abha: searchValue };
+            console.log('[Frontend] ABHA search (cross-hospital)');
+        } else if (searchType === 'phone') {
+            // Phone search - searches ALL hospitals automatically
+            params = { phone: searchValue };
+            console.log('[Frontend] Phone search (cross-hospital)');
+        } else if (searchType === 'aadhar') {
+            // Aadhaar search - auto-cross hospital
+            params = { aadhaar: searchValue };
+            console.log('[Frontend] Aadhaar search (cross-hospital)');
+        } else {
+            // Name search (default) - respects hospital filter
+            params = { name: searchValue, hospital_id };
+            console.log(`[Frontend] Name search in ${hospital_id || 'all hospitals'}`);
+        }
+
+        // Call  backend API
+        const response = await client.get('/api/patients/search', { params });
+
+        console.log(`[Frontend] Response: ${response.data.count} results`);
+
         const patients = response.data.results || [];
-
-        // Optional client-side filtering if backend doesn't support hospital filter
-        // The current backend `search_patients` only takes name or abha.
-        // So we filter by hospital_id on the client for the specific demo flow.
-        const filtered = hospital
-            ? patients.filter(p => p.hospital_id === `hospital_${hospital.toLowerCase()}`)
-            : patients;
-
-        return filtered.map(transformPatient);
+        return patients.map(transformPatient);
     } catch (error) {
-        console.error("Search failed:", error);
+        console.error("[Frontend] Search failed:", error);
+        console.error("[Frontend] Error details:", error.response?.data || error.message);
         throw error;
     }
 };

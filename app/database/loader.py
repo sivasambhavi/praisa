@@ -9,9 +9,6 @@ Features:
 - CSV data import with duplicate detection
 - Error handling and logging
 - Summary statistics
-
-Author: Mid Engineer
-Date: 2026-01-04
 """
 
 import pandas as pd  # For CSV file reading and data manipulation
@@ -19,7 +16,8 @@ import sqlite3  # SQLite database operations
 import os  # File system operations
 
 # Database file path (relative to project root)
-DB_PATH = "praisa_demo.db"
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+DB_PATH = os.path.join(BASE_DIR, "praisa_demo.db")
 
 
 def get_db_connection():
@@ -88,9 +86,9 @@ def load_patients_from_csv(csv_path, hospital_id):
                 """
                 INSERT INTO patients (
                     patient_id, hospital_id, name, dob, mobile,
-                    gender, abha_number, address, state
+                    gender, abha_number, aadhaar_number, address, state
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     row["patient_id"],  # Unique patient ID (e.g., "HA001")
@@ -100,6 +98,9 @@ def load_patients_from_csv(csv_path, hospital_id):
                     row["mobile"],  # Mobile number
                     row["gender"],  # Gender (M/F)
                     row["abha_number"],  # ABHA health ID
+                    row.get(
+                        "aadhaar_number", None
+                    ),  # Aadhaar number (handled if missing in old CSVs)
                     row["address"],  # Full address
                     row["state"],  # State name
                 ),
@@ -217,7 +218,7 @@ def init_db():
 
         # Read and execute SQL schema file
         # Schema creates tables, indexes, and constraints
-        with open("app/database/schema.sql", "r") as f:
+        with open(os.path.join(BASE_DIR, "app", "database", "schema.sql"), "r") as f:
             schema = f.read()
             cursor.executescript(schema)  # Execute all SQL statements
 
@@ -248,26 +249,31 @@ def load_all_data():
 
     print("Starting data load...")
 
-    # Step 2: Load patient data from both hospitals
-    # Hospital A patients
-    p_a = load_patients_from_csv("data/hospital_a_patients.csv", "hospital_a")
-    # Hospital B patients
-    p_b = load_patients_from_csv("data/hospital_b_patients.csv", "hospital_b")
+    # Step 2 & 3: Dynamically load all hospital data
+    import glob
 
-    # Step 3: Load visit data from both hospitals
-    # Hospital A visits
-    v_a = load_visits_from_csv("data/hospital_a_visits.csv")
-    # Hospital B visits
-    v_b = load_visits_from_csv("data/hospital_b_visits.csv")
+    # Load all patients
+    patient_files = glob.glob(os.path.join(BASE_DIR, "data", "hospital_*_patients.csv"))
+    total_patients = 0
+    for p_file in patient_files:
+        # Extract hospital_id from filename (e.g., data/hospital_a_patients.csv -> hospital_a)
+        hospital_id = os.path.basename(p_file).replace("_patients.csv", "")
+        count = load_patients_from_csv(p_file, hospital_id)
+        total_patients += count
+        print(f"Loaded {count} patients for {hospital_id}")
+
+    # Load all visits
+    visit_files = glob.glob(os.path.join(BASE_DIR, "data", "hospital_*_visits.csv"))
+    total_visits = 0
+    for v_file in visit_files:
+        count = load_visits_from_csv(v_file)
+        total_visits += count
+        print(f"Loaded {count} visits from {os.path.basename(v_file)}")
 
     # Step 4: Display summary statistics
     print("\nData Load Summary:")
-    print(f"Hospital A Patients: {p_a}")
-    print(f"Hospital B Patients: {p_b}")
-    print(f"Hospital A Visits: {v_a}")
-    print(f"Hospital B Visits: {v_b}")
-    print(f"Total Patients: {p_a + p_b}")
-    print(f"Total Visits: {v_a + v_b}")
+    print(f"Total Patients: {total_patients}")
+    print(f"Total Visits: {total_visits}")
 
 
 # Script entry point

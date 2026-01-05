@@ -1,13 +1,6 @@
 """
 FastAPI Main Application
 
-Senior Engineer: Implement this file using Antigravity prompt from docs/SENIOR_ENGINEER_DEMO_PRD.md
-
-TODO:
-1. Create FastAPI app with CORS
-2. Include routers for patients and matching
-3. Add startup/shutdown events
-4. Configure OpenAPI docs
 """
 
 from fastapi import FastAPI

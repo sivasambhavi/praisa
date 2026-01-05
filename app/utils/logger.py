@@ -3,9 +3,6 @@ Logging Configuration for PRAISA
 
 Provides centralized logging setup with different levels for development and production.
 Uses Python's built-in logging module with custom formatters.
-
-Author: Senior Engineer
-Date: 2026-01-04
 """
 
 import logging

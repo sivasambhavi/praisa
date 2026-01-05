@@ -52,7 +52,10 @@ def test_search_patients_missing_params():
     """Test search without required parameters"""
     response = client.get("/api/patients/search")
     assert response.status_code == 400
-    assert "Provide either 'name' or 'abha'" in response.json()["detail"]
+    assert (
+        "Provide 'name', 'abha', 'aadhaar', or 'phone' query parameter"
+        in response.json()["detail"]
+    )
 
 
 def test_get_patient_history_success():

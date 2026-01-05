@@ -8,9 +8,6 @@ Models:
 - PatientModel: Patient data structure
 - MatchRequest: Request body for matching endpoint
 - MatchResult: Response structure for matching endpoint
-
-Author: Senior Engineer
-Date: 2026-01-04
 """
 
 from pydantic import BaseModel, Field
@@ -58,6 +55,14 @@ class PatientModel(BaseModel):
     abha_number: Optional[str] = None  # Government health ID
     address: Optional[str] = None  # Residential address
     state: Optional[str] = None  # State/province
+
+    # Data Quality Fields
+    quality_score: Optional[int] = Field(
+        None, description="Data completeness score (0-100)"
+    )
+    missing_fields: Optional[list[str]] = Field(
+        None, description="List of missing critical fields"
+    )
 
 
 class MatchRequest(BaseModel):
@@ -141,6 +146,9 @@ class MatchResult(BaseModel):
     )
     patient_a_id: str  # First patient identifier
     patient_b_id: str  # Second patient identifier
+    matched_fields: Optional[list[str]] = Field(
+        None, description="List of fields that the AI identified as matching"
+    )
     details: Dict[str, Any] = Field(
         ..., description="Detailed results from all matching strategies"  # Required
     )

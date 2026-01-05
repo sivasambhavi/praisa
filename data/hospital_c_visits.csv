@@ -1,0 +1,54 @@
+visit_id,patient_id,admission_date,visit_type,diagnosis,doctor_name
+VC001-1,HC001,2025-02-23,Emergency,Diabetes,Dr. Strange
+VC001-2,HC001,2025-05-10,IPD,Malaria,Dr. House
+VC001-3,HC001,2025-10-03,Emergency,Diabetes,Dr. Smith
+VC002-1,HC002,2025-09-29,Emergency,Cold,Dr. Strange
+VC002-2,HC002,2025-02-24,IPD,Malaria,Dr. Jones
+VC002-3,HC002,2025-07-15,IPD,Fever,Dr. House
+VC002-4,HC002,2025-08-16,IPD,Cold,Dr. Smith
+VC002-5,HC002,2025-05-13,IPD,Dengue,Dr. Who
+VC003-1,HC003,2025-07-25,OPD,Fever,Dr. Strange
+VC004-1,HC004,2025-01-12,Emergency,Diabetes,Dr. House
+VC004-2,HC004,2025-11-09,OPD,Dengue,Dr. Who
+VC005-1,HC005,2025-12-25,OPD,Cough,Dr. Strange
+VC005-2,HC005,2025-12-31,Emergency,Cough,Dr. Who
+VC005-3,HC005,2025-08-01,OPD,Cough,Dr. Jones
+VC006-1,HC006,2025-07-29,OPD,Malaria,Dr. Who
+VC006-2,HC006,2025-02-02,IPD,Cough,Dr. House
+VC006-3,HC006,2025-02-08,OPD,Cold,Dr. Jones
+VC006-4,HC006,2025-06-12,Emergency,Typhoid,Dr. Who
+VC006-5,HC006,2025-10-09,Emergency,Cold,Dr. Who
+VC007-1,HC007,2025-04-13,OPD,Cough,Dr. Who
+VC008-1,HC008,2025-08-20,Emergency,Fever,Dr. Smith
+VC008-2,HC008,2025-05-13,Emergency,Cold,Dr. House
+VC008-3,HC008,2025-09-12,IPD,Diabetes,Dr. Jones
+VC008-4,HC008,2025-11-05,IPD,Cold,Dr. House
+VC009-1,HC009,2025-02-06,Emergency,Typhoid,Dr. Strange
+VC009-2,HC009,2025-01-29,Emergency,Malaria,Dr. Jones
+VC009-3,HC009,2025-07-23,IPD,Headache,Dr. Who
+VC009-4,HC009,2025-09-03,OPD,Dengue,Dr. House
+VC009-5,HC009,2025-10-21,IPD,Dengue,Dr. Who
+VC010-1,HC010,2025-10-22,IPD,Cold,Dr. Strange
+VC010-2,HC010,2025-09-30,OPD,Typhoid,Dr. Jones
+VC010-3,HC010,2025-07-02,OPD,Malaria,Dr. Who
+VC011-1,HC011,2025-04-26,IPD,Diabetes,Dr. Jones
+VC012-1,HC012,2025-04-24,IPD,Stomach Ache,Dr. Smith
+VC013-1,HC013,2025-05-19,OPD,Malaria,Dr. House
+VC013-2,HC013,2025-05-29,OPD,Cold,Dr. Smith
+VC013-3,HC013,2025-06-30,Emergency,Cough,Dr. Smith
+VC014-1,HC014,2025-08-13,IPD,Malaria,Dr. Who
+VC014-2,HC014,2025-11-23,Emergency,Diabetes,Dr. House
+VC014-3,HC014,2025-11-02,IPD,Fracture,Dr. Strange
+VC015-1,HC015,2025-02-16,Emergency,Stomach Ache,Dr. Jones
+VC015-2,HC015,2025-02-01,IPD,Fracture,Dr. Strange
+VC015-3,HC015,2025-06-22,OPD,Stomach Ache,Dr. Smith
+VC016-1,HC016,2025-02-25,OPD,Dengue,Dr. Smith
+VC017-1,HC017,2026-01-04,OPD,Stomach Ache,Dr. House
+VC017-2,HC017,2025-03-17,IPD,Stomach Ache,Dr. Jones
+VC017-3,HC017,2025-09-15,IPD,Typhoid,Dr. Strange
+VC017-4,HC017,2025-04-07,IPD,Dengue,Dr. House
+VC018-1,HC018,2025-07-04,IPD,Cough,Dr. House
+VC019-1,HC019,2025-11-20,OPD,Cough,Dr. House
+VC020-1,HC020,2025-09-04,OPD,Headache,Dr. Jones
+VC020-2,HC020,2025-12-25,OPD,Cough,Dr. Strange
+VC020-3,HC020,2025-07-24,OPD,Typhoid,Dr. Who
