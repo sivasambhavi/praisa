@@ -8,9 +8,6 @@ Endpoints:
 - GET /api/patients/search - Search patients by name or ABHA
 - GET /api/patients/{id} - Get patient details
 - GET /api/patients/{id}/history - Get patient visit history
-
-Author: Mid Engineer
-Date: 2026-01-04
 """
 
 from fastapi import APIRouter, HTTPException, Query

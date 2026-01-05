@@ -13,13 +13,9 @@ Waterfall Logic:
 
 This approach ensures we use the most reliable matching method available.
 
-Author: Senior Engineer
-Date: 2026-01-04
 """
 
-from app.matching.abha_match import abha_exact_match
-from app.matching.phonetic_match import phonetic_match_indian
-from app.matching.fuzzy_match import fuzzy_match
+
 from app.matching.ml_matcher import MLPatientMatcher
 
 # Initialize the global ML matcher (loads weights from disk if available)

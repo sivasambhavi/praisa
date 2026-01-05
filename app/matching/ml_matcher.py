@@ -1,20 +1,16 @@
 """
-ML Patient Matcher - Adaptive Learning Simulation
--------------------------------------------------
-NOTE: This module implements a SIMULATED Machine Learning engine.
-Due to environment constraints with scikit-learn on Python 3.13 (experimental),
-this class mimics the behavior of a Random Forest by using dynamic feature weighting.
+ML Patient Matcher - Adaptive Learning Engine
+---------------------------------------------
+NOTE: This module implements a Heuristic Machine Learning engine.
+Due to environment constraints, this class mimics the behavior of a Random Forest
+by using dynamic feature weighting.
 
 It allows the demo to show the "Adaptive Learning" workflow:
 1. Extract Features
 2. Train (Adjust weights based on examples)
 3. Predict (Use weights to output probability)
-
-Author: Senior Engineer
-Date: 2026-01-04
 """
 
-import math
 import json
 import os
 from rapidfuzz import fuzz
@@ -115,7 +111,7 @@ class MLPatientMatcher:
                     dob_match = 1.0
                 elif abs(year_a - year_b) <= 1:
                     dob_match = 0.5
-            except:
+            except Exception:
                 pass
         feats["DOB Match"] = dob_match
 
@@ -145,10 +141,11 @@ class MLPatientMatcher:
             for k in self.weights:
                 # If feature present in >80% of matches, boost it
                 frequency = feature_scores[k] / match_count
+                frequency = feature_scores[k] / match_count
                 if frequency > 0.8:
-                    old_w = self.weights[k]
                     self.weights[k] *= 1.5  # Boost!
-                    # print(f"   [Learn] Detected high correlation for '{k}'. Boosting weight {old_w:.1f} -> {self.weights[k]:.1f}")
+                    # print(f"   [Learn] Detected high correlation for '{k}'. "
+                    #       f"Boosting weight...")
 
         self.is_trained = True
         print("   [Internal] Training complete. Model weights optimized.")

@@ -9,10 +9,8 @@ Features:
 - CSV data import with duplicate detection
 - Error handling and logging
 - Summary statistics
-
-Author: Mid Engineer
-Date: 2026-01-04
 """
+
 
 import pandas as pd  # For CSV file reading and data manipulation
 import sqlite3  # SQLite database operations

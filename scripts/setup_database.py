@@ -7,8 +7,7 @@ This script should be run once during initial setup.
 Usage:
     python scripts/setup_database.py
 
-Author: Mid Engineer
-Date: 2026-01-04
+
 """
 
 import sys

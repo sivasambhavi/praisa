@@ -6,10 +6,8 @@ Uses the simple_matcher module which combines ABHA, phonetic, and fuzzy matching
 
 Endpoint: POST /api/match
 Purpose: Match two patient records using combined strategies
-
-Author: Senior Engineer
-Date: 2026-01-04
 """
+
 
 from fastapi import APIRouter, HTTPException
 from app.models.patient import MatchRequest, MatchResult

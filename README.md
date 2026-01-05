@@ -4,47 +4,71 @@
 
 ---
 
-## 📚 Documentation
+## 🚀 Key Features
 
-For detailed instructions, please refer to the following guides:
+### 1. Advanced Patient Matching
+- **ABHA Interaction**: 100% accuracy using government-issued unique health IDs.
+- **Phonetic Matching**: Specialized algorithms (Soundex, Metaphone) to handle Indian name variations (e.g., "Ramesh" vs "Ramehs").
+- **Fuzzy Matching**: Levenshtein distance-based matching for typos and OCR errors.
+- **Deep Verification**: Heuristic weighting engine that adapts to data patterns.
 
-| Guide                                                   | Description                                        |
-| ------------------------------------------------------- | -------------------------------------------------- |
-| [**Quick Start**](docs/guides/QUICK_START.md)           | Get the project up and running in minutes.         |
-| [**Execution Guide**](docs/guides/EXECUTION_GUIDE.md)   | Step-by-step development and execution flow.       |
-| [**Deployment Guide**](docs/guides/DEPLOYMENT_GUIDE.md) | Instructions for deploying to production.          |
-| [**API Documentation**](docs/api/API_DOCUMENTATION.md)  | Comprehensive API reference for backend endpoints. |
+### 2. Unified Patient History
+Aggregates visits, prescriptions, and diagnoses from multiple hospital nodes into a single, chronological timeline.
 
-> **Note:** If you are new to the project, start with the **[Quick Start Guide](docs/guides/QUICK_START.md)**.
+### 3. Cross-Hospital Search
+Seamlessly searches for patients across connected hospital nodes using Name, Mobile, Aadhaar, or ABHA number.
 
 ---
 
-## 🚀 Key Features
+## 🏗️ End-to-End Architecture & Workflow
 
-- **Advanced Patient Matching**:
-  - **ABHA Exact Match**: 100% accuracy using unique health IDs.
-  - **Phonetic Match**: Specialized algorithms (Soundex, Metaphone) for Indian names (e.g., "Ramesh" vs "Ramehs").
-  - **Fuzzy Match**: Levenshtein distance-based matching for typos and OCR errors.
-- **Unified Patient History**: Aggregates visits, prescriptions, and diagnoses from multiple hospital nodes into a single timeline.
-- **High Performance**: Optimized search and retrieval with <100ms response time.
-- **Modern UI**: Intuitive, responsive React-based frontend with a premium user experience.
+PRAISA uses a multi-stage pipeline to process and match patient records. Here is the flow demonstrated with real-world examples.
+
+### Architecture Diagram
+`Frontend UI` ➔ `FastAPI Backend` ➔ `Normalization Layer` ➔ `Matching Engine (Waterfall)` ➔ `Unified Response`
+
+### Example 1: The "Good Record" (Successful Match)
+**Scenario**: A doctor searches for "Ramesh Singh". The system finds a record in Hospital B that has a typo ("Ramehs Singh") but shares a government health ID (ABHA).
+
+1.  **Input**: Search query `Ramesh Singh` triggers a scan of all connected hospital nodes.
+2.  **Discovery**: System retrieves:
+    *   **Local**: `Ramesh Singh` (Hospital A)
+    *   **Remote**: `Ramehs Singh` (Hospital B)
+3.  **Matching Engine Processing**:
+    *   **Step 1 (ABHA Check)**: Both records have ABHA `12-3456-7890-1234`.
+    *   **Result**: 🎯 **100% Match Confidence**.
+4.  **UI Output**:
+    *   **Status**: 🟢 **EXACT MATCH**
+    *   **Action**: Automatically merges history.
+    *   **Visual Result**: Doctor sees a single, unified timeline with visits from *both* hospitals.
+
+### Example 2: The "Bad Record" (Ambiguous/No Match)
+**Scenario**: A doctor searches for "Amit Kumar". The system finds "Amit Sharma" in another hospital. Data quality is low (missing phone numbers).
+
+1.  **Input**: Search query `Amit Kumar`.
+2.  **Discovery**: System retrieves:
+    *   **Local**: `Amit Kumar` (Male, 24)
+    *   **Remote**: `Amit Sharma` (Male, 25)
+3.  **Matching Engine Processing**:
+    *   **Step 1 (ABHA Check)**: IDs are missing or different. ❌
+    *   **Step 2 (Phonetic)**: "Kumar" and "Sharma" do NOT sound alike. ❌
+    *   **Step 3 (Fuzzy)**: Edit distance is too high. Score: 45%.
+    *   **Result**: ⚠️ **Low Confidence (< 60%)**.
+4.  **UI Output**:
+    *   **Status**: 🔴 **NO MATCH**
+    *   **Action**: Records are kept separate.
+    *   **Visual Result**: System prevents a dangerous merge, ensuring patient safety.
 
 ---
 
 ## 🛠️ Technology Stack
 
-### Backend
-
-- **Framework**: FastAPI (Python 3.10+)
-- **Database**: SQLite (Development), PostgreSQL (Production ready)
-- **Algorithms**: `rapidfuzz`, `jellyfish` for string matching
-- **Testing**: `pytest`
-
-### Frontend
-
-- **Framework**: React 18 + Vite
-- **Styling**: Tailwind CSS
-- **HTTP Client**: Axios
+| Component | Tech Stack |
+| :--- | :--- |
+| **Backend** | Python 3.10+, FastAPI, SQLAlchemy, SQLite (POC) |
+| **Frontend** | React 18, Vite, Tailwind CSS, Axios |
+| **Algorithms** | `rapidfuzz`, `jellyfish` (Phonetic/Fuzzy Logic) |
+| **Testing** | `pytest`, `flake8` |
 
 ---
 
@@ -53,51 +77,37 @@ For detailed instructions, please refer to the following guides:
 ```text
 praisa/
 ├── app/                        # 🐍 Backend Application
-│   ├── database/               # Database models and connection logic
-│   ├── matching/               # Core matching algorithms (Phonetic, Fuzzy, etc.)
+│   ├── database/               # Database models & connection logic
+│   ├── matching/               # Core matching algorithms
 │   ├── models/                 # Pydantic data schemas
-│   ├── routes/                 # FastAPI route definitions
+│   ├── routes/                 # FastAPI endpoints
 │   └── main.py                 # Application entry point
 │
-├── data/                       # 📊 Mock Data & Seeds
-│   ├── hospital_a_patients.csv
-│   └── hospital_b_patients.csv
-│
-├── docs/                       # 📚 Project Documentation
-│   ├── api/                    # API Specs
-│   ├── guides/                 # Implementation & Deployment Guides
-│   ├── prds/                   # Product Requirement Documents
-│   └── roadmap/                # Future Roadmap
-│
-├── frontend/                   # 🎨 React Frontend Application
+├── frontend/                   # 🎨 React Frontend
 │   ├── src/
 │   │   ├── components/         # Reusable UI components
-│   │   └── api/                # Frontend API client
+│   │   └── api/                # API Integration
 │   └── package.json
 │
-├── scripts/                    # 🔧 Utility & Maintenance Scripts
-│   ├── setup_database.sh
-│   └── generate_demo_data.py
+├── scripts/                    # 🔧 Utility Scripts
+│   ├── setup_database.py       # DB Initialization & Seeding
+│   └── start_demo.bat          # One-click demo start (Windows)
 │
-├── tests/                      # 🧪 Automated Tests
-│   └── ...
+├── docs/                       # 📚 Documentation
+│   └── api/                    # Detailed API Docs
 │
-├── .env.example                # Environment variables template
-├── requirements.txt            # Python dependencies
-└── README.md                   # This file
+└── requirements.txt            # Python Dependencies
 ```
 
 ---
 
-## ⚡ Quick Start (Developer)
+## ⚡ Quick Start Guide
 
 ### Prerequisites
-
 - Python 3.9+
 - Node.js 18+
 
 ### 1. Backend Setup
-
 ```bash
 # Clone the repository
 git clone <repo-url>
@@ -113,42 +123,87 @@ source venv/bin/activate
 # Install dependencies
 pip install -r requirements.txt
 
-# Run the server
-uvicorn app.main:app --reload
+# Initialize Database & Load Mock Data
+python scripts/setup_database.py
+
+# Start Backend Server
+uvicorn app.main:app --reload --port 8000
 ```
 
 ### 2. Frontend Setup
-
 ```bash
-# Navigate to frontend directory
+# Open a new terminal
 cd frontend
 
 # Install dependencies
 npm install
 
-# Start the dev server
+# Start Frontend Dev Server
 npm run dev
 ```
 
-Visit `http://localhost:5173` to view the application.
+Visit `http://localhost:5173` to verify the application is running.
+
+---
+
+## 🔌 API Reference (Summary)
+
+Detailed documentation works at `http://localhost:8000/docs`.
+
+### Patients
+- `GET /api/patients/search`: Search by `name`, `abha`, `aadhaar`, or `phone`.
+- `GET /api/patients/{id}`: Get full patient details.
+- `GET /api/patients/{id}/history`: Get unified visit history.
+
+### Matching
+- `POST /api/match`: Compare two patient records for a match probability.
+  ```json
+  {
+    "patient_a": { "name": "Ramesh", ... },
+    "patient_b": { "name": "Ramehs", ... }
+  }
+  ```
+
+---
+
+## 🔮 Future Roadmap (4-Month Plan)
+
+### Phase 1: Pilot & "Golden Data" Collection (Month 1)
+- **Goal**: Deploy Hybrid System to collect verification data.
+- **Actions**:
+  - Deploy to 2 Pilot Hospitals.
+  - Implement Human-in-the-Loop (HITL) feedback for "Review" matches.
+  - Harvest "Verified Matches" (Golden Data) for future training.
+
+### Phase 2: Federated Architecture (Month 2)
+- **Goal**: Privacy-First Federated Network.
+- **Actions**:
+  - Install local "PRAISA Nodes" at hospitals.
+  - Implement **Privacy-Preserving Record Linkage (PPRL)** using Bloom Filters.
+  - HIPAA/DISHA Security Audit.
+
+### Phase 3: Deep Learning Upgrade (Month 3)
+- **Goal**: Replace heuristic model with Siamese Neural Networks.
+- **Actions**:
+  - Train Transformer-based models on the Golden Data.
+  - Improve accuracy on complex comparisons to **99.5%**.
+
+### Phase 4: ABDM Integration & Scale (Month 4)
+- **Goal**: National Stack Integration.
+- **Actions**:
+  - Official ABDM Compliance (Consent Manager, ABHA linking).
+  - Scale to 10+ Hospitals.
 
 ---
 
 ## 🤝 Contributing
 
 1. Fork the repository.
-2. Create feature branch (`git checkout -b feature/amazing-feature`).
-3. Commit changes (`git commit -m 'Add amazing feature'`).
-4. Push to branch (`git push origin feature/amazing-feature`).
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`).
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`).
+4. Push to the branch (`git push origin feature/AmazingFeature`).
 5. Open a Pull Request.
 
 ---
 
-## 📄 License
-
-Distributed under the MIT License. See `LICENSE` for more information.
-
----
-
-**Team**: Cloud AI Engineers  
-**Contact**: team@praisa.health
+**Team**: Tryminds 

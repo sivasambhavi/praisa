@@ -5,7 +5,6 @@ Verifies that the database contains the expected diverse data scenarios
 and that the system handles them correctly.
 """
 
-import pytest
 from datetime import datetime
 from sqlalchemy import text
 from app.database.db import get_db, get_patient, search_patients
@@ -72,7 +71,7 @@ def test_extreme_dates_exist():
             if dob_year < (current_year - 100) or dob_year > current_year:
                 extreme_found = True
                 break
-        except:
+        except Exception:
             continue
 
     assert extreme_found
@@ -110,7 +109,8 @@ def test_typo_matching_resilience():
         assert result["match_score"] >= 80
         assert result["recommendation"] == "MATCH"
         print(
-            f"Successfully matched 'Ramesh' to '{db_patient['name']}' with score {result['match_score']}"
+            f"Successfully matched 'Ramesh' to '{db_patient['name']}' "
+            f"with score {result['match_score']}"
         )
 
 

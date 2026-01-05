@@ -7,10 +7,8 @@ for patient and visit data. Uses SQLAlchemy with raw SQL for simplicity.
 Database: SQLite (POC) - Will migrate to PostgreSQL for production
 ORM: SQLAlchemy with text() for raw SQL queries
 Connection: Context manager pattern for automatic cleanup
-
-Author: Mid Engineer
-Date: 2026-01-04
 """
+
 
 import os
 from sqlalchemy import create_engine, text
@@ -103,7 +101,8 @@ def search_patients(
     Search patients by name, ABHA (exact), Aadhaar (exact), or phone (exact).
     """
     print(
-        f"[DEBUG] search_patients called with: name={name}, abha={abha}, aadhaar={aadhaar}, phone={phone}, hosp={hospital_id}"
+        f"[DEBUG] search_patients called with: name={name}, abha={abha}, "
+        f"aadhaar={aadhaar}, phone={phone}, hosp={hospital_id}"
     )
     with get_db() as db:
         results = []
@@ -128,7 +127,10 @@ def search_patients(
             # This handles cases where DB has dashes "12-34" but user searched "1234"
             if not results:
                 # Fallback to REPLACEd query (Full Scan)
-                sql = "SELECT * FROM patients WHERE REPLACE(REPLACE(abha_number, '-', ''), ' ', '') = :val"
+                sql = (
+                    "SELECT * FROM patients WHERE "
+                    "REPLACE(REPLACE(abha_number, '-', ''), ' ', '') = :val"
+                )
                 if hospital_id:
                     sql += " AND hospital_id = :hosp"
                 results = db.execute(text(sql), params).mappings().all()
@@ -150,7 +152,10 @@ def search_patients(
 
             if not results:
                 # Fallback (though Aadhaar is usually clean)
-                sql = "SELECT * FROM patients WHERE REPLACE(REPLACE(aadhaar_number, '-', ''), ' ', '') = :val"
+                sql = (
+                    "SELECT * FROM patients WHERE "
+                    "REPLACE(REPLACE(aadhaar_number, '-', ''), ' ', '') = :val"
+                )
                 if hospital_id:
                     sql += " AND hospital_id = :hosp"
                 results = db.execute(text(sql), params).mappings().all()
@@ -178,8 +183,11 @@ def search_patients(
                 # Fallback to flexible search
                 # Phone search: Flexible match on last 10 digits (PRIORITY 2)
                 sql = """
-                    SELECT * FROM patients 
-                    WHERE SUBSTR(REPLACE(REPLACE(REPLACE(mobile, '+91', ''), '-', ''), ' ', ''), -10) = :p_phone
+                    SELECT * FROM patients
+                    WHERE SUBSTR(
+                        REPLACE(REPLACE(REPLACE(mobile, '+91', ''), '-', ''), ' ', ''),
+                        -10
+                    ) = :p_phone
                 """
                 params = {"p_phone": last_10}
                 if hospital_id:

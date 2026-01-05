@@ -8,9 +8,6 @@ Models:
 - PatientModel: Patient data structure
 - MatchRequest: Request body for matching endpoint
 - MatchResult: Response structure for matching endpoint
-
-Author: Senior Engineer
-Date: 2026-01-04
 """
 
 from pydantic import BaseModel, Field
