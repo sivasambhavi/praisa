@@ -101,7 +101,9 @@ def load_patients_from_csv(csv_path, hospital_id):
                     row["mobile"],  # Mobile number
                     row["gender"],  # Gender (M/F)
                     row["abha_number"],  # ABHA health ID
-                    row.get("aadhaar_number", None), # Aadhaar number (handled if missing in old CSVs)
+                    row.get(
+                        "aadhaar_number", None
+                    ),  # Aadhaar number (handled if missing in old CSVs)
                     row["address"],  # Full address
                     row["state"],  # State name
                 ),
@@ -252,7 +254,7 @@ def load_all_data():
 
     # Step 2 & 3: Dynamically load all hospital data
     import glob
-    
+
     # Load all patients
     patient_files = glob.glob(os.path.join(BASE_DIR, "data", "hospital_*_patients.csv"))
     total_patients = 0

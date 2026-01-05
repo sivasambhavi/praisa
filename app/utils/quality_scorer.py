@@ -1,8 +1,7 @@
-
 def calculate_data_quality(patient: dict) -> tuple[int, list[str]]:
     """
     Calculate data quality score (0-100) for a patient record.
-    
+
     Scoring Logic:
     - ABHA Number: +40 points (Gold Standard ID)
     - Mobile Number: +20 points (Verifiable Contact)
@@ -10,18 +9,18 @@ def calculate_data_quality(patient: dict) -> tuple[int, list[str]]:
     - Address: +10 points (Demographic Critical)
     - Gender: +10 points (Demographic Critical)
     - Name: +10 points (Basic Identity - always present essentially)
-    
+
     Total Possible: 100
-    
+
     Args:
         patient: Patient dictionary or object
-        
+
     Returns:
         tuple: (score: int, missing_fields: list[str])
     """
     score = 0
     missing_fields = []
-    
+
     # helper to check if field exists and is not empty
     def has_value(key):
         val = patient.get(key)
@@ -38,7 +37,7 @@ def calculate_data_quality(patient: dict) -> tuple[int, list[str]]:
         score += 40
     else:
         missing_fields.append("ABHA Number")
-        
+
     # 3. Mobile (+20)
     if has_value("mobile"):
         score += 20

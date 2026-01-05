@@ -92,11 +92,19 @@ def get_patient(patient_id: str):
         return None
 
 
-def search_patients(name: str = None, abha: str = None, aadhaar: str = None, phone: str = None, hospital_id: str = None):
+def search_patients(
+    name: str = None,
+    abha: str = None,
+    aadhaar: str = None,
+    phone: str = None,
+    hospital_id: str = None,
+):
     """
     Search patients by name, ABHA (exact), Aadhaar (exact), or phone (exact).
     """
-    print(f"[DEBUG] search_patients called with: name={name}, abha={abha}, aadhaar={aadhaar}, phone={phone}, hosp={hospital_id}")
+    print(
+        f"[DEBUG] search_patients called with: name={name}, abha={abha}, aadhaar={aadhaar}, phone={phone}, hosp={hospital_id}"
+    )
     with get_db() as db:
         results = []
 
@@ -104,18 +112,18 @@ def search_patients(name: str = None, abha: str = None, aadhaar: str = None, pho
         if abha:
             # Clean input
             clean_abha = abha.replace("-", "").replace(" ", "").strip()
-            
+
             # OPTIMIZATION: Try exact match first (Uses Index = Fast)
             sql_fast = "SELECT * FROM patients WHERE abha_number = :val"
-            params = {"val": clean_abha} # Try cleaned version first
-            
+            params = {"val": clean_abha}  # Try cleaned version first
+
             if hospital_id:
                 sql_fast += " AND hospital_id = :hosp"
                 params["hosp"] = hospital_id
-                
+
             query_fast = text(sql_fast)
             results = db.execute(query_fast, params).mappings().all()
-            
+
             # If no results, try formatted search (or if input had dashes)
             # This handles cases where DB has dashes "12-34" but user searched "1234"
             if not results:
@@ -129,41 +137,43 @@ def search_patients(name: str = None, abha: str = None, aadhaar: str = None, pho
         elif aadhaar:
             # Clean input
             clean_aadhaar = aadhaar.replace("-", "").replace(" ", "").strip()
-            
+
             # OPTIMIZATION: Try exact match first (Uses Index = Fast)
             sql_fast = "SELECT * FROM patients WHERE aadhaar_number = :val"
             params = {"val": clean_aadhaar}
-            
+
             if hospital_id:
                 sql_fast += " AND hospital_id = :hosp"
                 params["hosp"] = hospital_id
-                
+
             results = db.execute(text(sql_fast), params).mappings().all()
-            
+
             if not results:
                 # Fallback (though Aadhaar is usually clean)
                 sql = "SELECT * FROM patients WHERE REPLACE(REPLACE(aadhaar_number, '-', ''), ' ', '') = :val"
                 if hospital_id:
                     sql += " AND hospital_id = :hosp"
                 results = db.execute(text(sql), params).mappings().all()
-            
+
         # Priority 3: Phone - Exact Match
         elif phone:
             # Clean the search phone (remove common prefixes and separators)
-            clean_phone = phone.replace("+91", "").replace("-", "").replace(" ", "").strip()
+            clean_phone = (
+                phone.replace("+91", "").replace("-", "").replace(" ", "").strip()
+            )
             # Try last 10 digits as exact match
             last_10 = clean_phone[-10:] if len(clean_phone) >= 10 else clean_phone
-            
+
             # OPTIMIZATION: Try exact match first
             sql_fast = "SELECT * FROM patients WHERE mobile = :val"
             params = {"val": last_10}
-            
+
             if hospital_id:
                 sql_fast += " AND hospital_id = :hosp"
                 params["hosp"] = hospital_id
-                
+
             results = db.execute(text(sql_fast), params).mappings().all()
-            
+
             if not results:
                 # Fallback to flexible search
                 # Phone search: Flexible match on last 10 digits (PRIORITY 2)
@@ -181,14 +191,16 @@ def search_patients(name: str = None, abha: str = None, aadhaar: str = None, pho
             # 1. Exact/Partial Match (Standard SQL)
             sql = "SELECT * FROM patients WHERE lower(name) LIKE :name"
             params = {"name": f"%{name.lower()}%"}
-            
+
             if hospital_id:
                 sql += " AND hospital_id = :hosp"
                 params["hosp"] = hospital_id
-                
+
             query = text(sql + " LIMIT 20")
-            sql_results = [dict(row) for row in db.execute(query, params).mappings().all()]
-            
+            sql_results = [
+                dict(row) for row in db.execute(query, params).mappings().all()
+            ]
+
             # 2. Fuzzy Match (Typo Resilience)
             # If we don't have enough exact matches, find candidates using fuzzy similarity
             if len(sql_results) < 5:
@@ -198,29 +210,32 @@ def search_patients(name: str = None, abha: str = None, aadhaar: str = None, pho
                 if hospital_id:
                     all_sql += " WHERE hospital_id = :hosp"
                     all_params["hosp"] = hospital_id
-                
+
                 all_query = text(all_sql)
-                all_patients = [dict(row) for row in db.execute(all_query, all_params).mappings().all()]
-                
+                all_patients = [
+                    dict(row)
+                    for row in db.execute(all_query, all_params).mappings().all()
+                ]
+
                 # Extract names for comparison
-                names_map = {p['id']: p['name'] for p in all_patients}
-                
+                names_map = {p["id"]: p["name"] for p in all_patients}
+
                 # Find top fuzzy matches
                 fuzzy_results = process.extract(
-                    name, 
-                    names_map.values(), 
-                    scorer=fuzz.ratio, 
-                    limit=10, 
-                    score_cutoff=70
+                    name,
+                    names_map.values(),
+                    scorer=fuzz.ratio,
+                    limit=10,
+                    score_cutoff=70,
                 )
-                
+
                 # Deduplicate and merge
                 matched_names = [res[0] for res in fuzzy_results]
                 for p in all_patients:
-                    if p['name'] in matched_names and p not in sql_results:
+                    if p["name"] in matched_names and p not in sql_results:
                         sql_results.append(p)
 
-            results = sql_results[:10] # Return top 10
+            results = sql_results[:10]  # Return top 10
 
         else:
             # No search criteria provided

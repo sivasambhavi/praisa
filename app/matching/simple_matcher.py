@@ -81,10 +81,10 @@ def match_patients(patient_a: dict, patient_b: dict) -> dict:
     patient_b_id = patient_b.get("patient_id", "UNKNOWN")
 
     # Step 1: Run ML Decision Engine
-    # The ML model extracts features (ABHA, Phonetic, Fuzzy, DOB, etc.) 
+    # The ML model extracts features (ABHA, Phonetic, Fuzzy, DOB, etc.)
     # and returns a probability based on learned weights.
     ml_res = ml_matcher.predict_detailed(patient_a, patient_b)
-    
+
     match_score = ml_res["prob"] * 100
     method = ml_res["method"]
     matched_fields = ml_res["matched_fields"]
@@ -109,8 +109,5 @@ def match_patients(patient_a: dict, patient_b: dict) -> dict:
         "matched_fields": matched_fields,
         "patient_a_id": patient_a_id,
         "patient_b_id": patient_b_id,
-        "details": {
-            "ml_result": ml_res,
-            "is_ml_driven": True
-        },
+        "details": {"ml_result": ml_res, "is_ml_driven": True},
     }

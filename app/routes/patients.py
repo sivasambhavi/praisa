@@ -26,9 +26,9 @@ router = APIRouter()
 async def search_patients(
     name: str = Query(None, min_length=2),  # Name search (min 2 chars)
     abha: str = Query(None, min_length=5),  # ABHA search (min 5 chars for flexibility)
-    aadhaar: str = Query(None, min_length=12), # Aadhaar search (min 12 chars)
+    aadhaar: str = Query(None, min_length=12),  # Aadhaar search (min 12 chars)
     phone: str = Query(None, min_length=10),  # Phone search (min 10 digits)
-    hospital_id: str = Query(None), # Optional hospital filter
+    hospital_id: str = Query(None),  # Optional hospital filter
 ):
     """
     Search for patients by name, ABHA, Aadhaar, or phone number.
@@ -70,17 +70,19 @@ async def search_patients(
     # Validate that at least one search parameter is provided
     if not name and not abha and not phone and not aadhaar:
         raise HTTPException(
-            status_code=400, 
-            detail="Provide 'name', 'abha', 'aadhaar', or 'phone' query parameter"
+            status_code=400,
+            detail="Provide 'name', 'abha', 'aadhaar', or 'phone' query parameter",
         )
 
     # Priority: ABHA > Aadhaar > Phone > Name (most specific to least specific)
     search_type = "name"
-    
+
     if abha:
         # ABHA match - highest priority, searches ALL hospitals automatically
         search_type = "abha"
-        patients = db.search_patients(abha=abha, hospital_id=None)  # Force cross-hospital
+        patients = db.search_patients(
+            abha=abha, hospital_id=None
+        )  # Force cross-hospital
     elif aadhaar:
         # Aadhaar match - searches ALL hospitals automatically
         search_type = "aadhaar"
@@ -92,7 +94,9 @@ async def search_patients(
         search_type = "phone"
         # Clean phone number (remove +91, spaces, dashes)
         clean_phone = phone.replace("+91", "").replace("-", "").replace(" ", "").strip()
-        patients = db.search_patients(phone=clean_phone, hospital_id=None)  # Force cross-hospital
+        patients = db.search_patients(
+            phone=clean_phone, hospital_id=None
+        )  # Force cross-hospital
     else:
         # Name search - respects hospital filter
         search_type = "name"
@@ -105,11 +109,7 @@ async def search_patients(
         p["missing_fields"] = missing
 
     # Return results with search type indicator
-    return {
-        "results": patients, 
-        "count": len(patients),
-        "search_type": search_type
-    }
+    return {"results": patients, "count": len(patients), "search_type": search_type}
 
 
 @router.get("/patients/{patient_id}")
