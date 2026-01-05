@@ -32,8 +32,20 @@ class TestSimpleMatcher:
 
     def test_phonetic_match_when_no_abha(self):
         """Test phonetic match when ABHA not available"""
-        patient_a = {"patient_id": "HA002", "name": "Vijay Kumar", "abha_number": None, "dob": "1990-01-01", "mobile": "9876543210"}
-        patient_b = {"patient_id": "HB002", "name": "Wijay Kumar", "abha_number": None, "dob": "1990-01-01", "mobile": "9876543210"}
+        patient_a = {
+            "patient_id": "HA002",
+            "name": "Vijay Kumar",
+            "abha_number": None,
+            "dob": "1990-01-01",
+            "mobile": "9876543210",
+        }
+        patient_b = {
+            "patient_id": "HB002",
+            "name": "Wijay Kumar",
+            "abha_number": None,
+            "dob": "1990-01-01",
+            "mobile": "9876543210",
+        }
 
         result = match_patients(patient_a, patient_b)
 
